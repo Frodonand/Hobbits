@@ -11,9 +11,9 @@ Paul Neuner
 
 ## Definition of done
 * Implementiert
-* 60% getestet
+* 60% Testcoverage
 * Dokumentiert (bzw. JavaDoc)
-* Pull Requests
+* Code reviews
 * Abnahme durch PO
 
 ## Definition of fun
