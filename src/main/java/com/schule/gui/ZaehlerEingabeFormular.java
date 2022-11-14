@@ -1,49 +1,59 @@
 package com.schule.gui;
 
 import com.schule.data.Zaehlerdatum;
-
-import javax.swing.*;
+import com.schule.persistence.JSONPersistance;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
-import java.util.ArrayList;
+import java.awt.event.WindowEvent;
+import java.util.List;
+import javax.swing.*;
 
 public class ZaehlerEingabeFormular extends JFrame {
+  private final String zaehlerListe[] = { "Strom", "Gas", "Heizung", "Wasser" };
+  private List<Zaehlerdatum> zaehlerdaten;
 
-    private final String zaehlerListe[] = {"Strom","Gas","Heizung","Wasser"};
-    private ArrayList<Zaehlerdatum> zaehlerdaten = new ArrayList<>();
+  private JTextField kundenummerText = new JTextField();
+  private JComboBox zaehlerartDrop = new JComboBox(zaehlerListe);
+  private JTextField zaehlernummerText = new JTextField();
+  private JTextField datumText = new JTextField();
+  private JCheckBox eingebautCheck = new JCheckBox();
+  private JTextField zaehlerstandText = new JTextField();
+  private JTextField kommentarText = new JTextField();
 
-    private JTextField kundenummerText = new JTextField();
-    private JComboBox zaehlerartDrop = new JComboBox(zaehlerListe);
-    private JTextField zaehlernummerText = new JTextField ();
-    private JTextField datumText = new JTextField ();
-    private JCheckBox eingebautCheck = new JCheckBox();
-    private JTextField zaehlerstandText = new JTextField();
-    private JTextField kommentarText = new JTextField();
+  private JSONPersistance<Zaehlerdatum> persistance = new JSONPersistance<Zaehlerdatum>();
 
-    public ZaehlerEingabeFormular(){
-        super("Zählerdaten erfassen");
+  public ZaehlerEingabeFormular() {
+    super("Zählerdaten erfassen");
+    GridLayout gridLayout = new GridLayout(7, 2);
 
-        GridLayout gridLayout = new GridLayout(7,2);
+    addWindowListener(
+      new WindowAdapter() {
 
-        addWindowListener(new WindowAdapter() {
-        });
+        @Override
+        public void windowClosing(final WindowEvent e) {
+          persistance.save(zaehlerdaten);
+          System.exit(0);
+        }
+      }
+    );
 
-        final Container con = getContentPane();
+    zaehlerdaten = persistance.load(Zaehlerdatum.class);
 
-        con.setLayout(new BorderLayout());
+    final Container con = getContentPane();
 
-        JPanel grid = new JPanel();
-        grid.setLayout(gridLayout);
+    con.setLayout(new BorderLayout());
 
+    JPanel grid = new JPanel();
+    grid.setLayout(gridLayout);
 
-        //Generieren der Labels, Buttons und Textfields
-        JLabel kundenummer = new JLabel("Kundennummer");
-        JLabel zaehlerart = new JLabel("Zählerart");
-        JLabel zaehlernummer = new JLabel ("Zählernummer");
-        JLabel datum = new JLabel ("Datum");
-        JLabel eingebaut = new JLabel("neu eingebaut");
-        JLabel zaehlerstand = new JLabel("Zählerstand");
-        JLabel kommentar = new JLabel("Kommentar");
+    //Generieren der Labels, Buttons und Textfields
+    JLabel kundenummer = new JLabel("Kundennummer");
+    JLabel zaehlerart = new JLabel("Zählerart");
+    JLabel zaehlernummer = new JLabel("Zählernummer");
+    JLabel datum = new JLabel("Datum");
+    JLabel eingebaut = new JLabel("neu eingebaut");
+    JLabel zaehlerstand = new JLabel("Zählerstand");
+    JLabel kommentar = new JLabel("Kommentar");
 
         JButton speichernBtn = new JButton("Speichern");
         JButton anzeigenBtn = new JButton("Daten anzeigen");
@@ -67,33 +77,96 @@ public class ZaehlerEingabeFormular extends JFrame {
         con.add(speichernBtn,BorderLayout.SOUTH);
         con.add(anzeigenBtn, BorderLayout.EAST);
 
+      anzeigenBtn.addActionListener(e -> datenFensteranzeigen(zaehlerdaten));
+    speichernBtn.addActionListener(e -> saveZaehler());
+    setSize(600, 300);
+    setVisible(true);
+  }
 
-        speichernBtn.addActionListener(e -> saveZaehler());
-        anzeigenBtn.addActionListener(e -> zeigeDatenAn());
-        setSize(600, 300);
-        setVisible(true);
-
+    private void datenFensteranzeigen(List<Zaehlerdatum> zaehlerdaten) {
+      new DatenFenster(zaehlerdaten);
     }
 
-
-    private void saveZaehler(){
-         int kundennummer = Integer.parseInt(kundenummerText.getText());
-         String zaehlerart = String.valueOf(zaehlerartDrop.getSelectedItem());
-         String zaehlernummer = zaehlernummerText.getText();
-         String datum = datumText.getText();
-         boolean eingebaut = eingebautCheck.isSelected();
-         int zaehlerstand = Integer.parseInt(zaehlerstandText.getText());
-         String kommentar = kommentarText.getText();
-
-
-        zaehlerdaten.add(
-                new Zaehlerdatum(kundennummer,zaehlerart,zaehlernummer,datum,eingebaut,zaehlerstand,kommentar)
-                );
-
-
+    private void saveZaehler() {
+    int kundennummer = 0;
+    String zaehlerart;
+    String zaehlernummer = "";
+    String datum = "";
+    boolean eingebaut;
+    int zaehlerstand = 0;
+    String kommentar = "";
+    // Kommentar
+    try {
+      kundennummer = Integer.parseInt(kundenummerText.getText());
+    } catch (Exception e) {
+      showErrorWindow(
+        "Die Kundennummer ist nicht korrekt erfasst. \n" +
+        "Im Feld 'Kundennummer' dürfen nur ganze Zahlen stehen"
+      );
     }
 
-    private void zeigeDatenAn() {
-        new DatenFenster(zaehlerdaten);
+    // zaehlerart
+    zaehlerart = String.valueOf(zaehlerartDrop.getSelectedItem());
+
+    // Zaehlernummer
+    try {
+      zaehlernummer = zaehlernummerText.getText();
+      if (zaehlernummer.equals("")) {
+        showErrorWindow(
+          "Die Zählernummer ist nicht korrekt erfasst. \n" +
+          "Im Feld 'Zählernummer stehen keine Werte."
+        );
+      }
+    } catch (Exception e) {
+      showErrorWindow("Fehler bei der Zählernummer.");
     }
+
+    // datum
+    try {
+      datum = datumText.getText();
+    } catch (Exception e) {
+      showErrorWindow(
+        "Das Datum ist nicht korrekt erfasst. \n" +
+        "Im Feld 'Datum' darf nur ein Datum im Format TT.MM.JJJJ hh:mm stehen"
+      );
+    }
+
+    // eingebaut
+    eingebaut = eingebautCheck.isSelected();
+
+    // zaehlerstand
+    try {
+      zaehlerstand = Integer.parseInt(zaehlerstandText.getText());
+    } catch (Exception e) {
+      showErrorWindow(
+        "Der Zaehlerstand ist nicht korrekt erfasst. \n" +
+        "Im Feld 'Zaehlerstand' dürfen nur ganze Zahlen eingegeben werden."
+      );
+    }
+
+    // kommentar
+    try {
+      kommentar = kommentarText.getText();
+    } catch (Exception e) {
+      showErrorWindow("Im Feld Kommentar dürfen nur Zahlen stehen");
+    }
+
+    zaehlerdaten.add(
+      new Zaehlerdatum(
+        kundennummer,
+        zaehlerart,
+        zaehlernummer,
+        datum,
+        eingebaut,
+        zaehlerstand,
+        kommentar
+      )
+    );
+  }
+
+  private void showErrorWindow(String message) {
+    String appendedMessage =
+      "Eine Speicherung des Datensatzes ist nicht erfolgt. \n" + message;
+    JOptionPane.showMessageDialog(this, appendedMessage);
+  }
 }

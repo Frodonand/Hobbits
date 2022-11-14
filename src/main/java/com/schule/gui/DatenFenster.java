@@ -10,19 +10,20 @@ import java.util.List;
 public class DatenFenster extends JFrame{
 
     private JTextArea datenanzeigeFeld = new JTextArea();
-    private JScrollBar sp = new JScrollBar(Adjustable.VERTICAL);
+    private JScrollPane sp;
     public DatenFenster(List<Zaehlerdatum> list){
 
     addWindowListener(new WindowAdapter() {
     });
 
+        sp = new JScrollPane(datenanzeigeFeld);
+
     final Container con = getContentPane();
     con.setLayout(new GridLayout());
-
-    datenanzeigeFeld.add(sp);
+    con.add(sp);
 
     for (Zaehlerdatum daten:list) {
-        datenanzeigeFeld.setText(String.valueOf(daten));
+        datenanzeigeFeld.append(String.valueOf(daten) + "\n");
     }
 
     setSize(600, 300);
