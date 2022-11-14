@@ -1,6 +1,11 @@
 package com.schule.gui;
 
+import com.schule.data.DateLabelFormatter;
 import com.schule.data.Zaehlerdatum;
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
+
 import javax.swing.*;
 
 import java.awt.*;
@@ -9,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Properties;
 
 public class ZaehlerEingabeFormular extends JFrame {
 
@@ -25,6 +31,14 @@ public class ZaehlerEingabeFormular extends JFrame {
 
     public ZaehlerEingabeFormular(){
         super("Zählerdaten erfassen");
+
+        UtilDateModel model = new UtilDateModel();
+        Properties p = new Properties();
+        p.put("text.today", "Today");
+        p.put("text.month", "Month");
+        p.put("text.year", "Year");
+        JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
+        JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
 
         GridLayout gridLayout = new GridLayout(7,2);
 
@@ -59,7 +73,7 @@ public class ZaehlerEingabeFormular extends JFrame {
         grid.add(zaehlernummer);
         grid.add(zaehlernummerText);
         grid.add(datum);
-        grid.add(datumText);
+        grid.add(datePicker);
         grid.add(eingebaut);
         grid.add(eingebautCheck);
         grid.add(zaehlerstand);
