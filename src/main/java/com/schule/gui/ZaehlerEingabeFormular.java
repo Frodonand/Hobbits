@@ -191,15 +191,6 @@ public class ZaehlerEingabeFormular extends JFrame {
     return Calendar.getInstance().getTime();
   }
 
-  /* Not needed anymore
-  public static String Now(String format) {
-    return DateToString(Now(), format);
-  }
-
-  public static String DateToString(Date date, String format) {
-    return new SimpleDateFormat(format).format(date);
-  }*/
-
   private void showErrorWindow(String message) {
     String appendedMessage =
       "Eine Speicherung des Datensatzes ist nicht erfolgt. \n" + message;
