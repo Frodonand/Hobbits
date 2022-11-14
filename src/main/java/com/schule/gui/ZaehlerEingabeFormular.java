@@ -32,6 +32,7 @@ public class ZaehlerEingabeFormular extends JFrame {
         @Override
         public void windowClosing(final WindowEvent e) {
           persistance.save(zaehlerdaten);
+          System.exit(0);
         }
       }
     );
