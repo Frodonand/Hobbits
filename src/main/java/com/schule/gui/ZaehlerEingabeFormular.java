@@ -11,7 +11,6 @@ import javax.swing.*;
 public class ZaehlerEingabeFormular extends JFrame {
   private final String zaehlerListe[] = { "Strom", "Gas", "Heizung", "Wasser" };
   private ArrayList<Zaehlerdatum> zaehlerdaten = new ArrayList<>();
-
   private JTextField kundenummerText = new JTextField();
   private JComboBox zaehlerartDrop = new JComboBox(zaehlerListe);
   private JTextField zaehlernummerText = new JTextField();
@@ -76,13 +75,69 @@ public class ZaehlerEingabeFormular extends JFrame {
   }
 
   private void saveZaehler() {
-    int kundennummer = Integer.parseInt(kundenummerText.getText());
-    String zaehlerart = String.valueOf(zaehlerartDrop.getSelectedItem());
-    String zaehlernummer = zaehlernummerText.getText();
-    String datum = datumText.getText();
-    boolean eingebaut = eingebautCheck.isSelected();
-    int zaehlerstand = Integer.parseInt(zaehlerstandText.getText());
-    String kommentar = kommentarText.getText();
+    int kundennummer = 0;
+    String zaehlerart;
+    String zaehlernummer = "";
+    String datum = "";
+    boolean eingebaut;
+    int zaehlerstand = 0;
+    String kommentar = "";
+
+    // Kommentar
+    try {
+      kundennummer = Integer.parseInt(kundenummerText.getText());
+    } catch (Exception e) {
+      showErrorWindow(
+        "Die Kundennummer ist nicht korrekt erfasst. \n" +
+        "Im Feld 'Kundennummer' dürfen nur ganze Zahlen stehen"
+      );
+    }
+
+    // zaehlerart
+    zaehlerart = String.valueOf(zaehlerartDrop.getSelectedItem());
+
+    // Zaehlernummer
+    try {
+      zaehlernummer = zaehlernummerText.getText();
+      if (zaehlernummer.equals("")) {
+        showErrorWindow(
+          "Die Zählernummer ist nicht korrekt erfasst. \n" +
+          "Im Feld 'Zählernummer stehen keine Werte."
+        );
+      }
+    } catch (Exception e) {
+      showErrorWindow("Fehler bei der Zählernummer.");
+    }
+
+    // datum
+    try {
+      datum = datumText.getText();
+    } catch (Exception e) {
+      showErrorWindow(
+        "Das Datum ist nicht korrekt erfasst. \n" +
+        "Im Feld 'Datum' darf nur ein Datum im Format TT.MM.JJJJ hh:mm stehen"
+      );
+    }
+
+    // eingebaut
+    eingebaut = eingebautCheck.isSelected();
+
+    // zaehlerstand
+    try {
+      zaehlerstand = Integer.parseInt(zaehlerstandText.getText());
+    } catch (Exception e) {
+      showErrorWindow(
+        "Der Zaehlerstand ist nicht korrekt erfasst. \n" +
+        "Im Feld 'Zaehlerstand' dürfen nur ganze Zahlen eingegeben werden."
+      );
+    }
+
+    // kommentar
+    try {
+      kommentar = kommentarText.getText();
+    } catch (Exception e) {
+      showErrorWindow("Im Feld Kommentar dürfen nur Zahlen stehen");
+    }
 
     zaehlerdaten.add(
       new Zaehlerdatum(
@@ -95,5 +150,11 @@ public class ZaehlerEingabeFormular extends JFrame {
         kommentar
       )
     );
+  }
+
+  private void showErrorWindow(String message) {
+    String appendedMessage =
+      "Eine Speicherung des Datensatzes ist nicht erfolgt. \n" + message;
+    JOptionPane.showMessageDialog(this, appendedMessage);
   }
 }
