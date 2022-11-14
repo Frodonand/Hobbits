@@ -1,6 +1,11 @@
 package com.schule;
 
+import com.schule.gui.ZaehlerEingabeFormular;
+
 public class Application {
 
-  public static void main(String[] args) throws Exception {}
+  public static void main(final String[] args) {
+    new ZaehlerEingabeFormular();
+  }
+
 }
