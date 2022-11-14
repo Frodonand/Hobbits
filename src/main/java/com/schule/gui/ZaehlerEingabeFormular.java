@@ -1,11 +1,14 @@
 package com.schule.gui;
 
 import com.schule.data.Zaehlerdatum;
-
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.WindowAdapter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 public class ZaehlerEingabeFormular extends JFrame {
 
@@ -15,7 +18,7 @@ public class ZaehlerEingabeFormular extends JFrame {
     private JTextField kundenummerText = new JTextField();
     private JComboBox zaehlerartDrop = new JComboBox(zaehlerListe);
     private JTextField zaehlernummerText = new JTextField ();
-    private JTextField datumText = new JTextField ();
+    private JTextField datumText = new JTextField (Now("dd.MM.yyyy"));
     private JCheckBox eingebautCheck = new JCheckBox();
     private JTextField zaehlerstandText = new JTextField();
     private JTextField kommentarText = new JTextField();
@@ -88,6 +91,17 @@ public class ZaehlerEingabeFormular extends JFrame {
 
 
     }
-
+    public static Date Now()
+    {
+        return Calendar.getInstance().getTime();
+    }
+    public static String Now(String format)
+    {
+        return DateToString(Now(), format);
+    }
+    public static String DateToString(Date date, String format)
+    {
+        return new SimpleDateFormat(format).format(date);
+    }
 
 }
