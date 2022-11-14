@@ -17,19 +17,18 @@ import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
 public class ZaehlerEingabeFormular extends JFrame {
-  private final String zaehlerListe[] = { "Strom", "Gas", "Heizung", "Wasser" };
-  private List<Zaehlerdatum> zaehlerdaten;
+  private final String[] zaehlerListe = { "Strom", "Gas", "Heizung", "Wasser" };
+  private final List<Zaehlerdatum> zaehlerdaten;
+  private final JTextField kundenummerText = new JTextField();
+  private final JComboBox zaehlerartDrop = new JComboBox(zaehlerListe);
+  private final JTextField zaehlernummerText = new JTextField();
+  private final JCheckBox eingebautCheck = new JCheckBox();
+  private final JTextField zaehlerstandText = new JTextField();
+  private final JTextField kommentarText = new JTextField();
+  private final JDatePickerImpl datePicker;
+  private final JDatePanelImpl datePanel;
 
-  private JTextField kundenummerText = new JTextField();
-  private JComboBox zaehlerartDrop = new JComboBox(zaehlerListe);
-  private JTextField zaehlernummerText = new JTextField();
-  private JCheckBox eingebautCheck = new JCheckBox();
-  private JTextField zaehlerstandText = new JTextField();
-  private JTextField kommentarText = new JTextField();
-  private JDatePickerImpl datePicker;
-  private JDatePanelImpl datePanel;
-
-  private JSONPersistance<Zaehlerdatum> persistance = new JSONPersistance<Zaehlerdatum>();
+  private final JSONPersistance<Zaehlerdatum> persistance = new JSONPersistance<>();
 
   public ZaehlerEingabeFormular() {
     super("Zählerdaten erfassen");
@@ -42,6 +41,7 @@ public class ZaehlerEingabeFormular extends JFrame {
     p.put("text.year", "Year");
     datePanel = new JDatePanelImpl(model, p);
     datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+    datePicker.getModel().setSelected(true);
     addWindowListener(
       new WindowAdapter() {
 
@@ -178,13 +178,14 @@ public class ZaehlerEingabeFormular extends JFrame {
     return Calendar.getInstance().getTime();
   }
 
+  /* Not needed anymore
   public static String Now(String format) {
     return DateToString(Now(), format);
   }
 
   public static String DateToString(Date date, String format) {
     return new SimpleDateFormat(format).format(date);
-  }
+  }*/
 
   private void showErrorWindow(String message) {
     String appendedMessage =
