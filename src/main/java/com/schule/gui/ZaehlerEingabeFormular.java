@@ -46,6 +46,7 @@ public class ZaehlerEingabeFormular extends JFrame {
         JLabel kommentar = new JLabel("Kommentar");
 
         JButton speichernBtn = new JButton("Speichern");
+        JButton anzeigenBtn = new JButton("Daten anzeigen");
 
         //Hinzufügen der Components zum Grid
         con.add(grid, BorderLayout.CENTER);
@@ -64,14 +65,17 @@ public class ZaehlerEingabeFormular extends JFrame {
         grid.add(kommentar);
         grid.add(kommentarText);
         con.add(speichernBtn,BorderLayout.SOUTH);
-
+        con.add(anzeigenBtn, BorderLayout.EAST);
 
 
         speichernBtn.addActionListener(e -> saveZaehler());
+        anzeigenBtn.addActionListener(e -> zeigeDatenAn());
         setSize(600, 300);
         setVisible(true);
 
     }
+
+
     private void saveZaehler(){
          int kundennummer = Integer.parseInt(kundenummerText.getText());
          String zaehlerart = String.valueOf(zaehlerartDrop.getSelectedItem());
@@ -89,5 +93,7 @@ public class ZaehlerEingabeFormular extends JFrame {
 
     }
 
-
+    private void zeigeDatenAn() {
+        new DatenFenster(zaehlerdaten);
+    }
 }
