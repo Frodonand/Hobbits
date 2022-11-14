@@ -1,13 +1,26 @@
 package com.schule.gui;
 
+import com.schule.data.Zaehlerdatum;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
+import java.util.ArrayList;
 
-public class Gui extends JFrame {
+public class ZaehlerEingabeFormular extends JFrame {
 
     private final String zaehlerListe[] = {"Strom","Gas","Heizung","Wasser"};
-    public Gui(){
+    private ArrayList<Zaehlerdatum> zaehlerdaten = new ArrayList<>();
+
+    private JTextField kundenummerText = new JTextField();
+    private JComboBox zaehlerartDrop = new JComboBox(zaehlerListe);
+    private JTextField zaehlernummerText = new JTextField ();
+    private JTextField datumText = new JTextField ();
+    private JCheckBox eingebautCheck = new JCheckBox();
+    private JTextField zaehlerstandText = new JTextField();
+    private JTextField kommentarText = new JTextField();
+
+    public ZaehlerEingabeFormular(){
         super("Zählerdaten erfassen");
 
         GridLayout gridLayout = new GridLayout(7,2);
@@ -32,14 +45,6 @@ public class Gui extends JFrame {
         JLabel zaehlerstand = new JLabel("Zählerstand");
         JLabel kommentar = new JLabel("Kommentar");
 
-        JTextField kundenummerText = new JTextField();
-        JComboBox zaehlerartDrop = new JComboBox(zaehlerListe);
-        JTextField zaehlernummerText = new JTextField ();
-        JTextField datumText = new JTextField ();
-        JCheckBox eingebautCheck = new JCheckBox();
-        JTextField zaehlerstandText = new JTextField();
-        JTextField kommentarText = new JTextField();
-
         JButton speichernBtn = new JButton("Speichern");
 
         //Hinzufügen der Components zum Grid
@@ -60,15 +65,28 @@ public class Gui extends JFrame {
         grid.add(kommentarText);
         con.add(speichernBtn,BorderLayout.SOUTH);
 
-        speichernBtn.addActionListener(e -> {
 
-        });
+
+        speichernBtn.addActionListener(e -> saveZaehler());
         setSize(600, 300);
         setVisible(true);
 
     }
-    public static void main(final String[] args) {
-        new Gui();
+    private void saveZaehler(){
+         int kundennummer = Integer.parseInt(kundenummerText.getText());
+         String zaehlerart = String.valueOf(zaehlerartDrop.getSelectedItem());
+         String zaehlernummer = zaehlernummerText.getText();
+         String datum = datumText.getText();
+         boolean eingebaut = eingebautCheck.isSelected();
+         int zaehlerstand = Integer.parseInt(zaehlerstandText.getText());
+         String kommentar = kommentarText.getText();
+
+
+        zaehlerdaten.add(
+                new Zaehlerdatum(kundennummer,zaehlerart,zaehlernummer,datum,eingebaut,zaehlerstand,kommentar)
+                );
+
+
     }
 
 
