@@ -9,7 +9,7 @@ public class JSONPersistance<T> implements Persistor<T> {
   static final String JSON_PATH = "target/zaehlerdaten.json";
 
   @Override
-  public <T> void save(List<T> list) {
+  public void save(List<T> list) {
     ObjectMapper mapper = new ObjectMapper();
     try {
       mapper.writeValue(new File(JSON_PATH), list);
@@ -19,7 +19,19 @@ public class JSONPersistance<T> implements Persistor<T> {
   }
 
   @Override
-  public List<T> load() {
-    return null;
+  public List<T> load(Class<T> loadClass) {
+    List<T> list = new ArrayList<T>();
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+
+      list =
+        mapper.readValue(
+          new File(JSON_PATH),
+          mapper.getTypeFactory().constructCollectionType(List.class, loadClass)
+        );
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    return list;
   }
 }

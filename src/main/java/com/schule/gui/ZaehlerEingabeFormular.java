@@ -5,12 +5,12 @@ import com.schule.persistence.JSONPersistance;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
+import java.util.List;
 import javax.swing.*;
 
 public class ZaehlerEingabeFormular extends JFrame {
   private final String zaehlerListe[] = { "Strom", "Gas", "Heizung", "Wasser" };
-  private ArrayList<Zaehlerdatum> zaehlerdaten = new ArrayList<>();
+  private List<Zaehlerdatum> zaehlerdaten;
 
   private JTextField kundenummerText = new JTextField();
   private JComboBox zaehlerartDrop = new JComboBox(zaehlerListe);
@@ -19,6 +19,8 @@ public class ZaehlerEingabeFormular extends JFrame {
   private JCheckBox eingebautCheck = new JCheckBox();
   private JTextField zaehlerstandText = new JTextField();
   private JTextField kommentarText = new JTextField();
+
+  private JSONPersistance<Zaehlerdatum> persistance = new JSONPersistance<Zaehlerdatum>();
 
   public ZaehlerEingabeFormular() {
     super("Zählerdaten erfassen");
@@ -29,10 +31,12 @@ public class ZaehlerEingabeFormular extends JFrame {
 
         @Override
         public void windowClosing(final WindowEvent e) {
-          new JSONPersistance<Zaehlerdatum>().save(zaehlerdaten);
+          persistance.save(zaehlerdaten);
         }
       }
     );
+
+    zaehlerdaten = persistance.load(Zaehlerdatum.class);
 
     final Container con = getContentPane();
 
