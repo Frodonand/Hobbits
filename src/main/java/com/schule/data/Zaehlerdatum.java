@@ -11,11 +11,23 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Zaehlerdatum {
-  private int kundennummer;
-  private String zaehlerart;
-  private String zaehlernummer;
-  private Date datum;
-  private boolean eingebaut;
-  private int zaehlerstand;
-  private String kommentar;
+    private int kundennummer;
+    private String zaehlerart;
+    private String zaehlernummer;
+    private Date datum;
+    private boolean eingebaut;
+    private int zaehlerstand;
+    private String kommentar;
+
+    @Override
+    public String toString() {
+        String s = "<html>Kundennummer: " + kundennummer + "<br>";
+        s += "Zählerart: "+zaehlerart;
+        s += " Zählernummer: " + zaehlernummer + "<br>";
+        s += "Datum: " + datum;
+        s += " Neu eingebaut: " + eingebaut;
+        s += " Zählerstand: " + zaehlerstand + "<br>";
+        s += "Kommentar: " + kommentar + "</html>";
+        return s;
+    }
 }

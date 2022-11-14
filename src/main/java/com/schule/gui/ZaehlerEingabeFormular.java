@@ -6,7 +6,6 @@ import com.schule.persistence.JSONPersistance;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -71,32 +70,39 @@ public class ZaehlerEingabeFormular extends JFrame {
     JLabel zaehlerstand = new JLabel("Zählerstand");
     JLabel kommentar = new JLabel("Kommentar");
 
-    JButton speichernBtn = new JButton("Speichern");
+        JButton speichernBtn = new JButton("Speichern");
+        JButton anzeigenBtn = new JButton("Daten anzeigen");
 
-    //Hinzufügen der Components zum Grid
-    con.add(grid, BorderLayout.CENTER);
-    grid.add(kundenummer);
-    grid.add(kundenummerText);
-    grid.add(zaehlerart);
-    grid.add(zaehlerartDrop);
-    grid.add(zaehlernummer);
-    grid.add(zaehlernummerText);
-    grid.add(datum);
-    grid.add(datePicker);
-    grid.add(eingebaut);
-    grid.add(eingebautCheck);
-    grid.add(zaehlerstand);
-    grid.add(zaehlerstandText);
-    grid.add(kommentar);
-    grid.add(kommentarText);
-    con.add(speichernBtn, BorderLayout.SOUTH);
+        //Hinzufügen der Components zum Grid
+        con.add(grid, BorderLayout.CENTER);
+        grid.add(kundenummer);
+        grid.add(kundenummerText);
+        grid.add(zaehlerart);
+        grid.add(zaehlerartDrop);
+        grid.add(zaehlernummer);
+        grid.add(zaehlernummerText);
+        grid.add(datum);
+        grid.add(datePicker);
+        grid.add(eingebaut);
+        grid.add(eingebautCheck);
+        grid.add(zaehlerstand);
+        grid.add(zaehlerstandText);
+        grid.add(kommentar);
+        grid.add(kommentarText);
+        con.add(speichernBtn,BorderLayout.SOUTH);
+        con.add(anzeigenBtn, BorderLayout.EAST);
 
+      anzeigenBtn.addActionListener(e -> datenFensteranzeigen(zaehlerdaten));
     speichernBtn.addActionListener(e -> saveZaehler());
     setSize(600, 300);
     setVisible(true);
   }
 
-  private void saveZaehler() {
+    private void datenFensteranzeigen(List<Zaehlerdatum> zaehlerdaten) {
+      new DatenFenster(zaehlerdaten);
+    }
+
+    private void saveZaehler() {
     int kundennummer = 0;
     String zaehlerart;
     String zaehlernummer = "";
@@ -104,7 +110,6 @@ public class ZaehlerEingabeFormular extends JFrame {
     boolean eingebaut;
     int zaehlerstand = 0;
     String kommentar = "";
-
     // Kommentar
     try {
       kundennummer = Integer.parseInt(kundenummerText.getText());
