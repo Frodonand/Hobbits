@@ -1,31 +1,46 @@
 package com.schule.gui;
 
+import com.schule.data.DateLabelFormatter;
 import com.schule.data.Zaehlerdatum;
 import com.schule.persistence.JSONPersistance;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import javax.swing.*;
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
 
 public class ZaehlerEingabeFormular extends JFrame {
-  private final String zaehlerListe[] = { "Strom", "Gas", "Heizung", "Wasser" };
-  private List<Zaehlerdatum> zaehlerdaten;
+  private final String[] zaehlerListe = { "Strom", "Gas", "Heizung", "Wasser" };
+  private final List<Zaehlerdatum> zaehlerdaten;
+  private final JTextField kundenummerText = new JTextField();
+  private final JComboBox zaehlerartDrop = new JComboBox(zaehlerListe);
+  private final JTextField zaehlernummerText = new JTextField();
+  private final JCheckBox eingebautCheck = new JCheckBox();
+  private final JTextField zaehlerstandText = new JTextField();
+  private final JTextField kommentarText = new JTextField();
+  private final JDatePickerImpl datePicker;
+  private final JDatePanelImpl datePanel;
 
-  private JTextField kundenummerText = new JTextField();
-  private JComboBox zaehlerartDrop = new JComboBox(zaehlerListe);
-  private JTextField zaehlernummerText = new JTextField();
-  private JTextField datumText = new JTextField();
-  private JCheckBox eingebautCheck = new JCheckBox();
-  private JTextField zaehlerstandText = new JTextField();
-  private JTextField kommentarText = new JTextField();
-
-  private JSONPersistance<Zaehlerdatum> persistance = new JSONPersistance<Zaehlerdatum>();
+  private final JSONPersistance<Zaehlerdatum> persistance = new JSONPersistance<>();
 
   public ZaehlerEingabeFormular() {
     super("Zählerdaten erfassen");
     GridLayout gridLayout = new GridLayout(7, 2);
 
+    UtilDateModel model = new UtilDateModel();
+    Properties p = new Properties();
+    p.put("text.today", "Today");
+    p.put("text.month", "Month");
+    p.put("text.year", "Year");
+    datePanel = new JDatePanelImpl(model, p);
+    datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+    datePicker.getModel().setSelected(true);
     addWindowListener(
       new WindowAdapter() {
 
@@ -67,7 +82,7 @@ public class ZaehlerEingabeFormular extends JFrame {
         grid.add(zaehlernummer);
         grid.add(zaehlernummerText);
         grid.add(datum);
-        grid.add(datumText);
+        grid.add(datePicker);
         grid.add(eingebaut);
         grid.add(eingebautCheck);
         grid.add(zaehlerstand);
@@ -91,7 +106,7 @@ public class ZaehlerEingabeFormular extends JFrame {
     int kundennummer = 0;
     String zaehlerart;
     String zaehlernummer = "";
-    String datum = "";
+    Date datum = Now();
     boolean eingebaut;
     int zaehlerstand = 0;
     String kommentar = "";
@@ -123,7 +138,7 @@ public class ZaehlerEingabeFormular extends JFrame {
 
     // datum
     try {
-      datum = datumText.getText();
+      datum = (Date) datePicker.getModel().getValue();
     } catch (Exception e) {
       showErrorWindow(
         "Das Datum ist nicht korrekt erfasst. \n" +
@@ -163,6 +178,19 @@ public class ZaehlerEingabeFormular extends JFrame {
       )
     );
   }
+
+  public static Date Now() {
+    return Calendar.getInstance().getTime();
+  }
+
+  /* Not needed anymore
+  public static String Now(String format) {
+    return DateToString(Now(), format);
+  }
+
+  public static String DateToString(Date date, String format) {
+    return new SimpleDateFormat(format).format(date);
+  }*/
 
   private void showErrorWindow(String message) {
     String appendedMessage =
