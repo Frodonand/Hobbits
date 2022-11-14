@@ -9,26 +9,41 @@ import java.util.List;
 
 public class DatenFenster extends JFrame{
 
-    private JTextArea datenanzeigeFeld = new JTextArea();
+    private JList<Zaehlerdatum> datenanzeigeFeld;
     private JScrollPane sp;
+
+
     public DatenFenster(List<Zaehlerdatum> list){
 
-    addWindowListener(new WindowAdapter() {
-    });
-
-        sp = new JScrollPane(datenanzeigeFeld);
+    DefaultListModel<Zaehlerdatum> viewList = new DefaultListModel<Zaehlerdatum>();
+    viewList.addAll(list);
+    datenanzeigeFeld = new JList<Zaehlerdatum>(viewList);
+    datenanzeigeFeld.setCellRenderer(getRenderer());
+    sp = new JScrollPane(datenanzeigeFeld);
 
     final Container con = getContentPane();
     con.setLayout(new GridLayout());
     con.add(sp);
 
-    for (Zaehlerdatum daten:list) {
-        datenanzeigeFeld.append(String.valueOf(daten) + "\n");
-    }
-
     setSize(600, 300);
     setVisible(true);
 
     }
+
+
+    private ListCellRenderer<? super Zaehlerdatum> getRenderer() {
+        return new DefaultListCellRenderer() {
+          @Override
+          public Component getListCellRendererComponent(JList<?> list,
+              Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            JLabel listCellRendererComponent = (JLabel) super
+                .getListCellRendererComponent(list, value, index, isSelected,
+                    cellHasFocus);
+            listCellRendererComponent.setBorder(BorderFactory.createMatteBorder(0,
+                0, 1, 0, Color.BLACK));
+            return listCellRendererComponent;
+          }
+        };
+      }
 
 }
