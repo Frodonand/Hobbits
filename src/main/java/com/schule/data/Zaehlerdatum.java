@@ -30,4 +30,22 @@ public class Zaehlerdatum {
         s += "Kommentar: " + kommentar + "</html>";
         return s;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof Zaehlerdatum){
+            Zaehlerdatum other = (Zaehlerdatum) o;
+            if(
+                this.kundennummer == other.kundennummer &&
+                this.zaehlerart.equals(other.zaehlerart) &&
+                this.zaehlernummer.equals(other.zaehlernummer) &&
+                this.datum.equals(other.datum) &&
+                this.eingebaut == other.eingebaut &&
+                this.zaehlerstand == other.zaehlerstand &&
+                this.kommentar.equals(other.kommentar)) {
+                    return true;
+                }
+        }
+        return false;
+    }
 }

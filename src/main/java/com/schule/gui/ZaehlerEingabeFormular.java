@@ -165,18 +165,26 @@ public class ZaehlerEingabeFormular extends JFrame {
     } catch (Exception e) {
       showErrorWindow("Im Feld Kommentar dürfen nur Zahlen stehen");
     }
-
-    zaehlerdaten.add(
-      new Zaehlerdatum(
-        kundennummer,
-        zaehlerart,
-        zaehlernummer,
-        datum,
-        eingebaut,
-        zaehlerstand,
-        kommentar
-      )
+    Zaehlerdatum newZaehlerdatum = new Zaehlerdatum(
+      kundennummer,
+      zaehlerart,
+      zaehlernummer,
+      datum,
+      eingebaut,
+      zaehlerstand,
+      kommentar
     );
+    boolean exists = false;
+    for (Zaehlerdatum curr : zaehlerdaten) {
+      if(newZaehlerdatum.equals(curr)){
+        exists = true;
+      }
+    }
+    if(!exists){
+      showErrorWindow("Dieser Eintrag exsistiert bereits!");
+    }else{
+      zaehlerdaten.add(newZaehlerdatum);
+    }
   }
 
   public static Date Now() {
