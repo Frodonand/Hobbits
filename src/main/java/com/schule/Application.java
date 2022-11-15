@@ -6,7 +6,7 @@ import java.text.ParseException;
 
 public class Application {
 
-  public static void main(final String[] args) throws ParseException {
+  public static void main(final String[] args) {
     new ZaehlerEingabeFormular();
   }
 
