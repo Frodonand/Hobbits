@@ -7,6 +7,10 @@ import java.util.List;
 
 public class JSONPersistance<T> implements Persistor<T> {
   static final String JSON_PATH = "target/zaehlerdaten.json";
+  private Class<T> classToLoad;
+  public JSONPersistance (Class<T> classToLoad){
+    this.classToLoad = classToLoad;
+  }
 
   @Override
   public void save(List<T> list) {
@@ -19,7 +23,7 @@ public class JSONPersistance<T> implements Persistor<T> {
   }
 
   @Override
-  public List<T> load(Class<T> loadClass) {
+  public List<T> load() {
     List<T> list = new ArrayList<T>();
     try {
       ObjectMapper mapper = new ObjectMapper();
@@ -27,7 +31,7 @@ public class JSONPersistance<T> implements Persistor<T> {
       list =
         mapper.readValue(
           new File(JSON_PATH),
-          mapper.getTypeFactory().constructCollectionType(List.class, loadClass)
+          mapper.getTypeFactory().constructCollectionType(List.class, classToLoad)
         );
     } catch (Exception ex) {
       ex.printStackTrace();

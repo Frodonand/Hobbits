@@ -4,8 +4,8 @@ import com.schule.data.DateLabelFormatter;
 import com.schule.data.Zaehlerdatum;
 import com.schule.model.ZaehlerDatenModel;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.MouseAdapter;
+import java.sql.DatabaseMetaData;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -15,25 +15,28 @@ import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
-public class ZaehlerEingabeFormular extends JFrame {
+public class ZaehlerAenderungsFormular extends JFrame {
   private final String[] zaehlerListe = { "Strom", "Gas", "Heizung", "Wasser" };
-  private final List<Zaehlerdatum> zaehlerdaten;
-  private final JTextField kundenummerText = new JTextField();
-  private final JComboBox zaehlerartDrop = new JComboBox(zaehlerListe);
-  private final JTextField zaehlernummerText = new JTextField();
-  private final JCheckBox eingebautCheck = new JCheckBox();
-  private final JTextField zaehlerstandText = new JTextField();
-  private final JTextField kommentarText = new JTextField();
+  private final JTextField kundenummerText ;
+  private final JComboBox zaehlerartDrop;
+  private final JTextField zaehlernummerText;
+  private final JCheckBox eingebautCheck;
+  private final JTextField zaehlerstandText;
+  private final JTextField kommentarText;
   private final JDatePickerImpl datePicker;
   private final JDatePanelImpl datePanel;
 
   private final ZaehlerDatenModel datenModel;
+  private final Zaehlerdatum data;
+  private final DatenFenster parent;
 
-  public ZaehlerEingabeFormular() {
+  public ZaehlerAenderungsFormular(Zaehlerdatum data,DatenFenster parent) {
     super("Zählerdaten erfassen");
     GridLayout gridLayout = new GridLayout(7, 2);
 
+    this.parent = parent;
     datenModel = ZaehlerDatenModel.getInstance();
+    this.data = data;
 
     UtilDateModel model = new UtilDateModel();
     Properties p = new Properties();
@@ -43,19 +46,6 @@ public class ZaehlerEingabeFormular extends JFrame {
     datePanel = new JDatePanelImpl(model, p);
     datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
     datePicker.getModel().setSelected(true);
-    addWindowListener(
-      new WindowAdapter() {
-
-        @Override
-        public void windowClosing(final WindowEvent e) {
-          datenModel.save();
-          System.exit(0);
-        }
-      }
-    );
-
-    zaehlerdaten = datenModel.getData();
-
     final Container con = getContentPane();
 
     con.setLayout(new BorderLayout());
@@ -72,8 +62,17 @@ public class ZaehlerEingabeFormular extends JFrame {
     JLabel zaehlerstand = new JLabel("Zählerstand");
     JLabel kommentar = new JLabel("Kommentar");
 
+
+     kundenummerText = new JTextField(String.valueOf(data.getKundennummer()));
+     zaehlerartDrop = new JComboBox(zaehlerListe);
+     zaehlerartDrop.setSelectedItem(data.getZaehlerart());
+     zaehlernummerText = new JTextField(data.getZaehlernummer());
+     eingebautCheck = new JCheckBox();
+     eingebautCheck.setSelected(data.isEingebaut());
+     zaehlerstandText = new JTextField(String.valueOf(data.getZaehlerstand()));
+     kommentarText = new JTextField(data.getKommentar());
+
         JButton speichernBtn = new JButton("Speichern");
-        JButton anzeigenBtn = new JButton("Daten anzeigen");
 
         //Hinzufügen der Components zum Grid
         con.add(grid, BorderLayout.CENTER);
@@ -92,17 +91,11 @@ public class ZaehlerEingabeFormular extends JFrame {
         grid.add(kommentar);
         grid.add(kommentarText);
         con.add(speichernBtn,BorderLayout.SOUTH);
-        con.add(anzeigenBtn, BorderLayout.EAST);
 
-      anzeigenBtn.addActionListener(e -> datenFensteranzeigen(zaehlerdaten));
-    speichernBtn.addActionListener(e -> saveZaehler());
+    speichernBtn.addActionListener(e -> saveZaehler());// ToDo: ändern
     setSize(600, 300);
     setVisible(true);
   }
-
-    private void datenFensteranzeigen(List<Zaehlerdatum> zaehlerdaten) {
-      new DatenFenster(zaehlerdaten);
-    }
 
     private void saveZaehler() {
     int kundennummer = 0;
@@ -176,18 +169,14 @@ public class ZaehlerEingabeFormular extends JFrame {
       zaehlerstand,
       kommentar
     );
-    boolean exists = false;
-    for (Zaehlerdatum curr : zaehlerdaten) {
-      if(newZaehlerdatum.equals(curr)){
-        exists = true;
-      }
-    }
-    if(exists){
-      showErrorWindow("Dieser Eintrag exsistiert bereits!");
-    }else{
-      zaehlerdaten.add(newZaehlerdatum);
-    }
+    int index = datenModel.getData().indexOf(data);
+
+    datenModel.updateEntry(index ,newZaehlerdatum);
+    parent.update();
+    setVisible(false);
+
   }
+
 
   public static Date Now() {
     return Calendar.getInstance().getTime();
