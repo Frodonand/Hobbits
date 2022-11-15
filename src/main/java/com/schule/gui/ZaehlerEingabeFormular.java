@@ -214,17 +214,8 @@ public class ZaehlerEingabeFormular extends JFrame {
         JOptionPane.showMessageDialog(this, appendedMessage);
     }
 
-    private int countDigits(int integer) {
-        int counter = 0;
-        while (integer != 0) {
-            integer = integer / 10;
-            counter++;
-        }
-        return counter;
-    }
-
     private void machePlausabilitaetspruefung() throws ParseException {
-        if (countDigits(Integer.parseInt(kundenummerText.getText())) != 8) {
+        if (kundenummerText.getText().length() != 8) {
             JOptionPane.showMessageDialog(this, "Kundennummer zu lang oder zu kurz");
         }
         if (zaehlernummerText.getText().length() != 8) {
