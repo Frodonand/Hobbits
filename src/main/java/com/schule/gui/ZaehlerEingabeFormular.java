@@ -111,6 +111,9 @@ public class ZaehlerEingabeFormular extends JFrame {
             if (zaehlernummerText.getText().length() != 8) {
                 JOptionPane.showMessageDialog(this, "Zählernummer zu lang oder zu kurz");
             }
+            if(!checkIfStringIsASCII(zaehlernummerText.getText())){
+                JOptionPane.showMessageDialog(this, "Die Zählernummer enthält nicht ASCII Zeichen.");
+            }
             if (Integer.parseInt(zaehlerstandText.getText()) > 1000000) {
                 int dialog = JOptionPane.showConfirmDialog(this, "Der Wert für den Zählerstand ist sehr hoch. Ist das gewollt?");
                 if (dialog == JOptionPane.NO_OPTION) {
@@ -126,6 +129,17 @@ public class ZaehlerEingabeFormular extends JFrame {
             if (checkIfDateIsInvalid()) {
                 JOptionPane.showMessageDialog(this, "Das Datum ist entweder in der Zukunft oder vor dem Jahr 2000.");
             }
+    }
+
+    private boolean checkIfStringIsASCII(String stringToCheck) {
+        String upperString = stringToCheck.toUpperCase();
+        for (int pos = 0; pos < upperString.length(); pos++) {
+            int ascii = upperString.charAt(pos);
+            if((ascii < 48 || ascii > 57) && (ascii < 65 || ascii >90)){
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean checkIfDateIsInvalid() throws ParseException {
