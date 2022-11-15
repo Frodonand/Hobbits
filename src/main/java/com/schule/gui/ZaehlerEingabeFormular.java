@@ -7,6 +7,8 @@ import com.schule.persistence.JSONPersistance;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -91,34 +93,63 @@ public class ZaehlerEingabeFormular extends JFrame {
         grid.add(kommentarText);
         con.add(speichernBtn, BorderLayout.SOUTH);
 
-        speichernBtn.addActionListener(e -> saveZaehler());
-        speichernBtn.addActionListener(e -> machePlausabilitaetspruefung());
+        speichernBtn.addActionListener(e -> {
+            try {
+                saveZaehler();
+            } catch (ParseException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
         setSize(600, 300);
         setVisible(true);
     }
 
-    private void machePlausabilitaetspruefung() {
-        if (countDigits(Integer.parseInt(kundenummerText.getText())) != 8) {
-            JOptionPane.showMessageDialog(this, "Kundennummer zu lang oder zu kurz");
-        }
-        if (zaehlernummerText.getText().length() != 8) {
-            JOptionPane.showMessageDialog(this, "Zählernummer zu lang oder zu kurz");
-        }
-        if (Integer.parseInt(zaehlerstandText.getText()) > 1000000) {
-            int dialog = JOptionPane.showConfirmDialog(this, "Der Wert für den Zählerstand ist sehr hoch. Ist das gewollt?");
-            if (dialog == JOptionPane.NO_OPTION) {
-                zaehlerstandText.setText("Neu eingeben");
+    private void machePlausabilitaetspruefung() throws ParseException {
+            if (countDigits(Integer.parseInt(kundenummerText.getText())) != 8) {
+                JOptionPane.showMessageDialog(this, "Kundennummer zu lang oder zu kurz");
             }
-        }
-        if (eingebautCheck.isSelected() && Integer.parseInt(zaehlerstandText.getText()) > 1000) {
-            int dialog = JOptionPane.showConfirmDialog(this, "Der Wert für den Zählerstand ist für einen neu eingebauten Zähler sehr hoch. Ist das gewollt?");
-            if (dialog == JOptionPane.NO_OPTION) {
-                zaehlerstandText.setText("Neu eingeben");
+            if (zaehlernummerText.getText().length() != 8) {
+                JOptionPane.showMessageDialog(this, "Zählernummer zu lang oder zu kurz");
             }
-        }
+            if (Integer.parseInt(zaehlerstandText.getText()) > 1000000) {
+                int dialog = JOptionPane.showConfirmDialog(this, "Der Wert für den Zählerstand ist sehr hoch. Ist das gewollt?");
+                if (dialog == JOptionPane.NO_OPTION) {
+                    zaehlerstandText.setText("Neu eingeben");
+                }
+            }
+            if (eingebautCheck.isSelected() && Integer.parseInt(zaehlerstandText.getText()) > 1000) {
+                int dialog = JOptionPane.showConfirmDialog(this, "Der Wert für den Zählerstand ist für einen neu eingebauten Zähler sehr hoch. Ist das gewollt?");
+                if (dialog == JOptionPane.NO_OPTION) {
+                    zaehlerstandText.setText("Neu eingeben");
+                }
+            }
+            if (checkIfDateIsInvalid()) {
+                JOptionPane.showMessageDialog(this, "Das Datum ist entweder in der Zukunft oder vor dem Jahr 2000.");
+            }
     }
 
-    private void saveZaehler() {
+    private boolean checkIfDateIsInvalid() throws ParseException {
+        boolean isInvalidDate = false;
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+
+        String enteredDay = datePicker.getModel().getDay() + "";
+        String enteredMonth = datePicker.getModel().getMonth()+1 + "/";
+        String enteredYear = datePicker.getModel().getYear() + "/";
+
+        String enteredDateStringAsString = enteredYear + enteredMonth + enteredDay;
+        Date enteredDate = sdf.parse(enteredDateStringAsString);
+
+        String tooEarlyString = "2000/00/00";
+        Date tooEarlyDate = sdf.parse(tooEarlyString);
+
+        if(enteredDate.after(Now()) || enteredDate.before(tooEarlyDate)){
+            isInvalidDate = true;
+        }
+        return isInvalidDate;
+    }
+
+    private void saveZaehler() throws ParseException {
         int kundennummer = 0;
         String zaehlerart;
         String zaehlernummer = "";
@@ -146,7 +177,7 @@ public class ZaehlerEingabeFormular extends JFrame {
             if (zaehlernummer.equals("")) {
                 showErrorWindow(
                         "Die Zählernummer ist nicht korrekt erfasst. \n" +
-                                "Im Feld 'Zählernummer stehen keine Werte."
+                                "Im Feld 'Zählernummer' stehen keine Werte."
                 );
             }
         } catch (Exception e) {
@@ -194,6 +225,7 @@ public class ZaehlerEingabeFormular extends JFrame {
                         kommentar
                 )
         );
+        machePlausabilitaetspruefung();
     }
 
     public static Date Now() {
