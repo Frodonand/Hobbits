@@ -4,13 +4,12 @@ import com.schule.data.Zaehlerdatum;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
 import java.util.List;
 
 public class DatenFenster extends JFrame{
 
-    private JList<Zaehlerdatum> datenanzeigeFeld;
-    private JScrollPane sp;
+    private final JList<Zaehlerdatum> datenanzeigeFeld;
+    private final JScrollPane sp;
 
 
     public DatenFenster(List<Zaehlerdatum> list){
