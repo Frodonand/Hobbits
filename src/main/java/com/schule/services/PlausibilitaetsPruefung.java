@@ -32,19 +32,18 @@ public class PlausibilitaetsPruefung {
 
         try{
         if (Integer.parseInt(zaehlerstandText) > 1000000 && s.equals("")) {
-            int dialog = JOptionPane.showConfirmDialog(null, "Der Wert für den Zählerstand ist sehr hoch. Ist das gewollt?");
+            int dialog = JOptionPane.showConfirmDialog(null, "Der Wert für den Zählerstand ist sehr hoch. Ist das gewollt?","Wert überprüfen",JOptionPane.YES_NO_OPTION);
             if (dialog == JOptionPane.NO_OPTION) {
                 s = "Daten wurden nicht gespeichet";
             }
         }else if (eingebautCheck && Integer.parseInt(zaehlerstandText) > 1000 && s.equals("")) {
-            int dialog = JOptionPane.showConfirmDialog(null, "Der Wert für den Zählerstand ist für einen neu eingebauten Zähler sehr hoch. Ist das gewollt?");
+            int dialog = JOptionPane.showConfirmDialog(null, "Der Wert für den Zählerstand ist für einen neu eingebauten Zähler sehr hoch. Ist das gewollt?","Wert überprüfen",JOptionPane.YES_NO_OPTION);
             if (dialog == JOptionPane.NO_OPTION) {
                 s = "Daten wurden nicht gespeichet";
             }
         }
     
         }catch(NumberFormatException e){
-            e.printStackTrace();
             s+="Zählerstand muss eine ganze Zahl sein \n";
         }
         return s;
