@@ -124,14 +124,12 @@ public class ZaehlerEingabeFormular extends JFrame {
         boolean eingebaut;
         int zaehlerstand = 0;
         String kommentar = "";
+        String s = "";
         // Kommentar
         try {
             kundennummer = Integer.parseInt(kundenummerText.getText());
         } catch (Exception e) {
-            showErrorWindow(
-                    "Die Kundennummer ist nicht korrekt erfasst. \n" +
-                            "Im Feld 'Kundennummer' dürfen nur ganze Zahlen stehen"
-            );
+            s += "Im Feld 'Kundennummer' dürfen nur ganze Zahlen stehen\n";
         }
 
         // zaehlerart
@@ -140,24 +138,15 @@ public class ZaehlerEingabeFormular extends JFrame {
         // Zaehlernummer
         try {
             zaehlernummer = zaehlernummerText.getText();
-            if (zaehlernummer.equals("")) {
-                showErrorWindow(
-                        "Die Zählernummer ist nicht korrekt erfasst. \n" +
-                                "Im Feld 'Zählernummer stehen keine Werte."
-                );
-            }
         } catch (Exception e) {
-            showErrorWindow("Fehler bei der Zählernummer.");
+            s += "Im Feld 'Zählernummer stehen keine Werte.\n";
         }
 
         // datum
         try {
             datum = (Date) datePicker.getModel().getValue();
         } catch (Exception e) {
-            showErrorWindow(
-                    "Das Datum ist nicht korrekt erfasst. \n" +
-                            "Im Feld 'Datum' darf nur ein Datum im Format TT.MM.JJJJ hh:mm stehen"
-            );
+            s+="Im Feld 'Datum' darf nur ein Datum im Format TT.MM.JJJJ hh:mm stehen";
         }
 
         // eingebaut
@@ -167,17 +156,14 @@ public class ZaehlerEingabeFormular extends JFrame {
         try {
             zaehlerstand = Integer.parseInt(zaehlerstandText.getText());
         } catch (Exception e) {
-            showErrorWindow(
-                    "Der Zaehlerstand ist nicht korrekt erfasst. \n" +
-                            "Im Feld 'Zaehlerstand' dürfen nur ganze Zahlen eingegeben werden."
-            );
-        }
+            s+="Im Feld 'Zaehlerstand' dürfen nur ganze Zahlen eingegeben werden.\n";
+       }
 
         // kommentar
         try {
             kommentar = kommentarText.getText();
         } catch (Exception e) {
-            showErrorWindow("Im Feld Kommentar dürfen nur Zahlen stehen");
+            s+= "Im Feld Kommentar dürfen nur Zahlen stehen";
         }
 
         Zaehlerdatum newZaehlerdatum = new Zaehlerdatum(
@@ -189,7 +175,7 @@ public class ZaehlerEingabeFormular extends JFrame {
                 zaehlerstand,
                 kommentar
         );
-        machePlausabilitaetspruefung();
+         s += machePlausabilitaetspruefung();
 
         boolean exists = false;
         for (Zaehlerdatum curr : zaehlerdaten) {
@@ -199,7 +185,9 @@ public class ZaehlerEingabeFormular extends JFrame {
         }
         if (exists) {
             showErrorWindow("Dieser Eintrag exsistiert bereits!");
-        } else {
+        } else if(!s.equals("")){
+            showErrorWindow(s);
+        } else{
             zaehlerdaten.add(newZaehlerdatum);
         }
     }
@@ -215,31 +203,37 @@ public class ZaehlerEingabeFormular extends JFrame {
         JOptionPane.showMessageDialog(this, appendedMessage);
     }
 
-    private void machePlausabilitaetspruefung() throws ParseException {
-        if (kundenummerText.getText().length() != 8) {
-            JOptionPane.showMessageDialog(this, "Kundennummer zu lang oder zu kurz");
+    private String machePlausabilitaetspruefung() throws ParseException {
+        String s ="";
+        try{
+            Integer.parseInt(kundenummerText.getText());
+            if (kundenummerText.getText().length() != 8) {
+                s +="Kundennummer zu lang oder zu kurz \n";
+            }
+        }catch(NumberFormatException e){
+            s+="Kundennummer muss eine ganze Zahl sein \n";
         }
         if (zaehlernummerText.getText().length() != 8) {
-            JOptionPane.showMessageDialog(this, "Zählernummer zu lang oder zu kurz");
+            s += "Zählernummer zu lang oder zu kurz\n";
         }
         if (!checkIfStringIsASCII(zaehlernummerText.getText())) {
-            JOptionPane.showMessageDialog(this, "Die Zählernummer enthält nicht ASCII Zeichen.");
+            s += "Die Zählernummer enthält nicht ASCII Zeichen.\n";
         }
         if (Integer.parseInt(zaehlerstandText.getText()) > 1000000) {
-            int dialog = JOptionPane.showConfirmDialog(this, "Der Wert für den Zählerstand ist sehr hoch. Ist das gewollt?");
-            if (dialog == JOptionPane.NO_OPTION) {
-                zaehlerstandText.setText("Neu eingeben");
-            }
+            s +="Der Wert für den Zählerstand ist sehr hoch. Ist das gewollt?\n";
+
         }
+        try{
         if (eingebautCheck.isSelected() && Integer.parseInt(zaehlerstandText.getText()) > 1000) {
-            int dialog = JOptionPane.showConfirmDialog(this, "Der Wert für den Zählerstand ist für einen neu eingebauten Zähler sehr hoch. Ist das gewollt?");
-            if (dialog == JOptionPane.NO_OPTION) {
-                zaehlerstandText.setText("Neu eingeben");
-            }
+            s +="Der Wert für den Zählerstand ist für einen neu eingebauten Zähler sehr hoch. Ist das gewollt?\n";
+        }
+        }catch(NumberFormatException e){
+            s+="Zählerstand muss eine ganze Zahl sein \n";
         }
         if (checkIfDateIsInvalid()) {
-            JOptionPane.showMessageDialog(this, "Das Datum ist entweder in der Zukunft oder älter als 2 Wochen");
+            s +="Das Datum ist entweder in der Zukunft oder älter als 2 Woche\n";
         }
+        return s;
     }
 
     private boolean checkIfStringIsASCII(String stringToCheck) {
