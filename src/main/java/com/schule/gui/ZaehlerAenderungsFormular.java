@@ -3,12 +3,10 @@ package com.schule.gui;
 import com.schule.data.DateLabelFormatter;
 import com.schule.data.Zaehlerdatum;
 import com.schule.model.ZaehlerDatenModel;
+import com.schule.services.PlausibilitaetsPruefung;
+
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.sql.DatabaseMetaData;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 import javax.swing.*;
 import org.jdatepicker.impl.JDatePanelImpl;
@@ -18,7 +16,7 @@ import org.jdatepicker.impl.UtilDateModel;
 public class ZaehlerAenderungsFormular extends JFrame {
   private final String[] zaehlerListe = { "Strom", "Gas", "Heizung", "Wasser" };
   private final JTextField kundenummerText ;
-  private final JComboBox zaehlerartDrop;
+  private final JComboBox<String> zaehlerartDrop;
   private final JTextField zaehlernummerText;
   private final JCheckBox eingebautCheck;
   private final JTextField zaehlerstandText;
@@ -64,7 +62,7 @@ public class ZaehlerAenderungsFormular extends JFrame {
 
 
      kundenummerText = new JTextField(String.valueOf(data.getKundennummer()));
-     zaehlerartDrop = new JComboBox(zaehlerListe);
+     zaehlerartDrop = new JComboBox<String>(zaehlerListe);
      zaehlerartDrop.setSelectedItem(data.getZaehlerart());
      zaehlernummerText = new JTextField(data.getZaehlernummer());
      eingebautCheck = new JCheckBox();
@@ -99,67 +97,21 @@ public class ZaehlerAenderungsFormular extends JFrame {
 
     private void saveZaehler() {
     int kundennummer = 0;
-    String zaehlerart;
-    String zaehlernummer = "";
-    Date datum = Now();
-    boolean eingebaut;
     int zaehlerstand = 0;
-    String kommentar = "";
-    // Kommentar
+    
+    String zaehlerart = String.valueOf(zaehlerartDrop.getSelectedItem());
+    String zaehlernummer = zaehlernummerText.getText();
+    Date datum = (Date) datePicker.getModel().getValue();
+    boolean eingebaut = eingebautCheck.isSelected();
+    String kommentar = kommentarText.getText();
+    
     try {
       kundennummer = Integer.parseInt(kundenummerText.getText());
-    } catch (Exception e) {
-      showErrorWindow(
-        "Die Kundennummer ist nicht korrekt erfasst. \n" +
-        "Im Feld 'Kundennummer' dürfen nur ganze Zahlen stehen"
-      );
-    }
-
-    // zaehlerart
-    zaehlerart = String.valueOf(zaehlerartDrop.getSelectedItem());
-
-    // Zaehlernummer
-    try {
-      zaehlernummer = zaehlernummerText.getText();
-      if (zaehlernummer.equals("")) {
-        showErrorWindow(
-          "Die Zählernummer ist nicht korrekt erfasst. \n" +
-          "Im Feld 'Zählernummer stehen keine Werte."
-        );
-      }
-    } catch (Exception e) {
-      showErrorWindow("Fehler bei der Zählernummer.");
-    }
-
-    // datum
-    try {
-      datum = (Date) datePicker.getModel().getValue();
-    } catch (Exception e) {
-      showErrorWindow(
-        "Das Datum ist nicht korrekt erfasst. \n" +
-        "Im Feld 'Datum' darf nur ein Datum im Format TT.MM.JJJJ hh:mm stehen"
-      );
-    }
-
-    // eingebaut
-    eingebaut = eingebautCheck.isSelected();
-
-    // zaehlerstand
+    } catch (Exception e) {}
     try {
       zaehlerstand = Integer.parseInt(zaehlerstandText.getText());
-    } catch (Exception e) {
-      showErrorWindow(
-        "Der Zaehlerstand ist nicht korrekt erfasst. \n" +
-        "Im Feld 'Zaehlerstand' dürfen nur ganze Zahlen eingegeben werden."
-      );
-    }
+  } catch (Exception e) {}
 
-    // kommentar
-    try {
-      kommentar = kommentarText.getText();
-    } catch (Exception e) {
-      showErrorWindow("Im Feld Kommentar dürfen nur Zahlen stehen");
-    }
     Zaehlerdatum newZaehlerdatum = new Zaehlerdatum(
       kundennummer,
       zaehlerart,
@@ -170,16 +122,15 @@ public class ZaehlerAenderungsFormular extends JFrame {
       kommentar
     );
     int index = datenModel.getData().indexOf(data);
-
-    datenModel.updateEntry(index ,newZaehlerdatum);
-    parent.update();
-    setVisible(false);
-
-  }
-
-
-  public static Date Now() {
-    return Calendar.getInstance().getTime();
+    String s = PlausibilitaetsPruefung.machePlausabilitaetspruefung(kundenummerText.getText(),zaehlernummer,
+    zaehlerstandText.getText(),eingebaut,datum);
+    if(s.equals("")){
+      datenModel.updateEntry(index ,newZaehlerdatum);
+      parent.update();
+      setVisible(false);
+    }else{
+      showErrorWindow(s);
+    }
   }
 
   private void showErrorWindow(String message) {

@@ -2,7 +2,6 @@ package com.schule.gui;
 
 import com.schule.data.Zaehlerdatum;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
