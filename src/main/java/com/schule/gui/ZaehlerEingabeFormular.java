@@ -6,6 +6,8 @@ import com.schule.model.ZaehlerDatenModel;
 import com.schule.services.PlausibilitaetsPruefung;
 
 import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Date;
@@ -65,10 +67,13 @@ public class ZaehlerEingabeFormular extends JFrame {
         JPanel grid = new JPanel();
         grid.setLayout(gridLayout);
 
+
         //Generieren der Labels, Buttons und Textfields
-        JLabel kundenummer = new JLabel("Kundennummer");
+        JLabel kundenummer = new JLabel("Kundennummer (8-stellig)");
+        kundenummerText.setToolTipText("Hier eine 8-stellige Nummer einfügen.");
         JLabel zaehlerart = new JLabel("Zählerart");
-        JLabel zaehlernummer = new JLabel("Zählernummer");
+        JLabel zaehlernummer = new JLabel("Zählernummer (8-stellig)");
+        zaehlernummerText.setToolTipText("Hier eine 8-stellige Kombination aus Zahlen und Buchstaben einfügen.");
         JLabel datum = new JLabel("Datum");
         JLabel eingebaut = new JLabel("neu eingebaut");
         JLabel zaehlerstand = new JLabel("Zählerstand");
@@ -76,6 +81,7 @@ public class ZaehlerEingabeFormular extends JFrame {
 
         JButton speichernBtn = new JButton("Speichern");
         JButton anzeigenBtn = new JButton("Daten anzeigen");
+
 
         //Hinzufügen der Components zum Grid
         con.add(grid, BorderLayout.CENTER);
