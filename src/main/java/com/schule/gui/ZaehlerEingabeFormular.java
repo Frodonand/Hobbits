@@ -219,13 +219,13 @@ public class ZaehlerEingabeFormular extends JFrame {
         if (!checkIfStringIsASCII(zaehlernummerText.getText())) {
             s += "Die Zählernummer enthält nicht ASCII Zeichen.\n";
         }
+        try{
         if (Integer.parseInt(zaehlerstandText.getText()) > 1000000) {
             s +="Der Wert für den Zählerstand ist sehr hoch. Ist das gewollt?\n";
+            if (eingebautCheck.isSelected() && Integer.parseInt(zaehlerstandText.getText()) > 1000) {
+                s +="Der Wert für den Zählerstand ist für einen neu eingebauten Zähler sehr hoch. Ist das gewollt?\n";
+            }
 
-        }
-        try{
-        if (eingebautCheck.isSelected() && Integer.parseInt(zaehlerstandText.getText()) > 1000) {
-            s +="Der Wert für den Zählerstand ist für einen neu eingebauten Zähler sehr hoch. Ist das gewollt?\n";
         }
         }catch(NumberFormatException e){
             s+="Zählerstand muss eine ganze Zahl sein \n";
