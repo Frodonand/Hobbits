@@ -38,4 +38,11 @@ public class ZaehlerDatenModel {
         data.add(index, newZaehlerdatum);
     }
     
+    public void removeEntry(int index) {
+        data.remove(index);
+    }
+
+    public Zaehlerdatum getEntry(int index) {
+        return data.get(index);
+    }
 }
