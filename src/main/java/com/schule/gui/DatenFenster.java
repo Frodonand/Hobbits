@@ -1,8 +1,11 @@
 package com.schule.gui;
 
 import com.schule.data.Zaehlerdatum;
+import com.schule.model.ZaehlerDatenModel;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
@@ -11,6 +14,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.BorderLayout;
 import java.awt.Point;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyAdapter;
 import java.text.DateFormat;
 import java.awt.Container;
 import java.util.Date;
@@ -22,12 +27,13 @@ public class DatenFenster extends JFrame{
     private JTable datenanzeigeFeld;
     private JScrollPane sp;
     private List<Zaehlerdatum> dataList;
+    private ZaehlerDatenModel persistance;
 
     public DatenFenster(List<Zaehlerdatum> dataList){
 
-
+        persistance = ZaehlerDatenModel.getInstance();
         this.dataList = dataList;
-    datenanzeigeFeld = new JTable() {
+        datenanzeigeFeld = new JTable() {
         private static final long serialVersionUID = 1L;
 
         public boolean isCellEditable(int row, int column) {                
@@ -41,6 +47,9 @@ public class DatenFenster extends JFrame{
     final Container con = getContentPane();
     con.setLayout(new BorderLayout());
     con.add(sp,BorderLayout.CENTER);
+    JButton delete = new JButton("Löschen");
+    con.add(delete,BorderLayout.SOUTH);
+
 
     datenanzeigeFeld.addMouseListener(new MouseAdapter() {
         public void mousePressed(MouseEvent mouseEvent) {
@@ -52,7 +61,14 @@ public class DatenFenster extends JFrame{
             }
         }
     });
-    
+    datenanzeigeFeld.addKeyListener(new KeyAdapter(){
+        public void keyPressed(KeyEvent e){
+            if(e.getKeyCode() == KeyEvent.VK_DELETE){
+                removeEntry(datenanzeigeFeld.getSelectedRow());
+            }
+        }
+    });
+    delete.addActionListener(e->removeEntry(datenanzeigeFeld.getSelectedRow()));
     setSize(600, 300);
     setVisible(true);
     }
@@ -94,6 +110,27 @@ public class DatenFenster extends JFrame{
             "Kommentar"
         };
         datenanzeigeFeld.setModel(new DefaultTableModel(allData,headers));
+    }
+
+    private void removeEntry(int index){
+        Zaehlerdatum curr = persistance.getEntry(index);
+        String s = "Kundennummer: " +  curr.getKundennummer() + "\n";
+        s += "Zählerart: "+ curr.getZaehlerart() + "\n";
+        s += "Zählernummer: " +  curr.getZaehlernummer() + "\n";
+        s += "Datum: " +  curr.getDatum() + "\n";
+        s += "Neu eingebaut: " +  curr.isEingebaut() + "\n";
+        s += "Zählerstand: " +  curr.getZaehlerstand() + "\n";
+        s += "Kommentar: " +  curr.getKommentar() + "\n";
+
+
+        int dialog = JOptionPane.showConfirmDialog(this, "Soll der Datensatz mit diesen Werten wirklich gelöscht werden?\n" + s,"Werte überprüfen",JOptionPane.YES_NO_OPTION);
+        if (dialog == JOptionPane.NO_OPTION) {
+            JOptionPane.showMessageDialog(this, "Die Zählerdaten wurden nicht gelöscht.");
+        } else{
+        persistance.removeEntry(index);
+        JOptionPane.showMessageDialog(this, "Die Zählerdaten wurden gelöscht.");
+        update();
+    }
     }
 
 }
