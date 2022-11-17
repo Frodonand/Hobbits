@@ -4,5 +4,5 @@ import java.util.List;
 
 public interface Persistor<T> {
   void save(List<T> list);
-  List<T> load(Class<T> loadClass);
+  List<T> load();
 }

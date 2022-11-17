@@ -2,17 +2,12 @@ package com.schule.gui;
 
 import com.schule.data.DateLabelFormatter;
 import com.schule.data.Zaehlerdatum;
-import com.schule.persistence.JSONPersistance;
+import com.schule.model.ZaehlerDatenModel;
+import com.schule.services.PlausibilitaetsPruefung;
 
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -26,7 +21,7 @@ public class ZaehlerEingabeFormular extends JFrame {
     private final String[] zaehlerListe = {"Strom", "Gas", "Heizung", "Wasser"};
     private final List<Zaehlerdatum> zaehlerdaten;
     private final JTextField kundenummerText = new JTextField();
-    private final JComboBox zaehlerartDrop = new JComboBox(zaehlerListe);
+    private final JComboBox<String> zaehlerartDrop = new JComboBox<String>(zaehlerListe);
     private final JTextField zaehlernummerText = new JTextField();
     private final JCheckBox eingebautCheck = new JCheckBox();
     private final JTextField zaehlerstandText = new JTextField();
@@ -34,32 +29,34 @@ public class ZaehlerEingabeFormular extends JFrame {
     private final JDatePickerImpl datePicker;
     private final JDatePanelImpl datePanel;
 
-    private final JSONPersistance<Zaehlerdatum> persistance = new JSONPersistance<>();
+  private final ZaehlerDatenModel datenModel;
 
     public ZaehlerEingabeFormular() {
         super("Zählerdaten erfassen");
         GridLayout gridLayout = new GridLayout(7, 2);
 
-        UtilDateModel model = new UtilDateModel();
-        Properties p = new Properties();
-        p.put("text.today", "Today");
-        p.put("text.month", "Month");
-        p.put("text.year", "Year");
-        datePanel = new JDatePanelImpl(model, p);
-        datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
-        datePicker.getModel().setSelected(true);
-        addWindowListener(
-                new WindowAdapter() {
+    datenModel = ZaehlerDatenModel.getInstance();
 
-                    @Override
-                    public void windowClosing(final WindowEvent e) {
-                        persistance.save(zaehlerdaten);
-                        System.exit(0);
-                    }
-                }
-        );
+    UtilDateModel model = new UtilDateModel();
+    Properties p = new Properties();
+    p.put("text.today", "Today");
+    p.put("text.month", "Month");
+    p.put("text.year", "Year");
+    datePanel = new JDatePanelImpl(model, p);
+    datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+    datePicker.getModel().setSelected(true);
+    addWindowListener(
+      new WindowAdapter() {
 
-        zaehlerdaten = persistance.load(Zaehlerdatum.class);
+        @Override
+        public void windowClosing(final WindowEvent e) {
+          datenModel.save();
+          System.exit(0);
+        }
+      }
+    );
+
+    zaehlerdaten = datenModel.getData();
 
         final Container con = getContentPane();
 
@@ -100,13 +97,7 @@ public class ZaehlerEingabeFormular extends JFrame {
         con.add(anzeigenBtn, BorderLayout.EAST);
 
         anzeigenBtn.addActionListener(e -> datenFensteranzeigen(zaehlerdaten));
-        speichernBtn.addActionListener(e -> {
-            try {
-                saveZaehler();
-            } catch (ParseException ex) {
-                throw new RuntimeException(ex);
-            }
-        });
+        speichernBtn.addActionListener(e -> saveZaehler());
         setSize(600, 300);
         setVisible(true);
     }
@@ -115,69 +106,22 @@ public class ZaehlerEingabeFormular extends JFrame {
         new DatenFenster(zaehlerdaten);
     }
 
-    private void saveZaehler() throws ParseException {
+    private void saveZaehler() {
         int kundennummer = 0;
-        String zaehlerart;
-        String zaehlernummer = "";
-        Date datum = Now();
-        boolean eingebaut;
         int zaehlerstand = 0;
-        String kommentar = "";
-        // Kommentar
+        
+        String zaehlerart = String.valueOf(zaehlerartDrop.getSelectedItem());
+        String zaehlernummer = zaehlernummerText.getText();
+        Date datum = (Date) datePicker.getModel().getValue();
+        boolean eingebaut = eingebautCheck.isSelected();
+        String kommentar = kommentarText.getText();
+        
         try {
-            kundennummer = Integer.parseInt(kundenummerText.getText());
-        } catch (Exception e) {
-            showErrorWindow(
-                    "Die Kundennummer ist nicht korrekt erfasst. \n" +
-                            "Im Feld 'Kundennummer' dürfen nur ganze Zahlen stehen"
-            );
-        }
-
-        // zaehlerart
-        zaehlerart = String.valueOf(zaehlerartDrop.getSelectedItem());
-
-        // Zaehlernummer
+          kundennummer = Integer.parseInt(kundenummerText.getText());
+        } catch (Exception e) {}
         try {
-            zaehlernummer = zaehlernummerText.getText();
-            if (zaehlernummer.equals("")) {
-                showErrorWindow(
-                        "Die Zählernummer ist nicht korrekt erfasst. \n" +
-                                "Im Feld 'Zählernummer stehen keine Werte."
-                );
-            }
-        } catch (Exception e) {
-            showErrorWindow("Fehler bei der Zählernummer.");
-        }
-
-        // datum
-        try {
-            datum = (Date) datePicker.getModel().getValue();
-        } catch (Exception e) {
-            showErrorWindow(
-                    "Das Datum ist nicht korrekt erfasst. \n" +
-                            "Im Feld 'Datum' darf nur ein Datum im Format TT.MM.JJJJ hh:mm stehen"
-            );
-        }
-
-        // eingebaut
-        eingebaut = eingebautCheck.isSelected();
-
-        // zaehlerstand
-        try {
-            zaehlerstand = Integer.parseInt(zaehlerstandText.getText());
-        } catch (Exception e) {
-            showErrorWindow(
-                    "Der Zaehlerstand ist nicht korrekt erfasst. \n" +
-                            "Im Feld 'Zaehlerstand' dürfen nur ganze Zahlen eingegeben werden."
-            );
-        }
-
-        // kommentar
-        try {
-            kommentar = kommentarText.getText();
-        } catch (Exception e) {
-            showErrorWindow("Im Feld Kommentar dürfen nur Zahlen stehen");
-        }
+          zaehlerstand = Integer.parseInt(zaehlerstandText.getText());
+        } catch (Exception e) {}    
 
         Zaehlerdatum newZaehlerdatum = new Zaehlerdatum(
                 kundennummer,
@@ -188,8 +132,8 @@ public class ZaehlerEingabeFormular extends JFrame {
                 zaehlerstand,
                 kommentar
         );
-        machePlausabilitaetspruefung();
-
+        String s = PlausibilitaetsPruefung.machePlausabilitaetspruefung(kundenummerText.getText(),zaehlernummer,
+        zaehlerstandText.getText(),eingebaut,datum);
         boolean exists = false;
         for (Zaehlerdatum curr : zaehlerdaten) {
             if (newZaehlerdatum.equals(curr)) {
@@ -198,15 +142,12 @@ public class ZaehlerEingabeFormular extends JFrame {
         }
         if (exists) {
             showErrorWindow("Dieser Eintrag exsistiert bereits!");
-        } else {
+        } else if(!s.equals("")){
+            showErrorWindow(s);
+        } else{
             zaehlerdaten.add(newZaehlerdatum);
         }
     }
-
-    public static Date Now() {
-        return Calendar.getInstance().getTime();
-    }
-
 
     private void showErrorWindow(String message) {
         String appendedMessage =
@@ -214,79 +155,4 @@ public class ZaehlerEingabeFormular extends JFrame {
         JOptionPane.showMessageDialog(this, appendedMessage);
     }
 
-    private void machePlausabilitaetspruefung() throws ParseException {
-        if (kundenummerText.getText().length() != 8) {
-            JOptionPane.showMessageDialog(this, "Kundennummer zu lang oder zu kurz");
-        }
-        if (zaehlernummerText.getText().length() != 8) {
-            JOptionPane.showMessageDialog(this, "Zählernummer zu lang oder zu kurz");
-        }
-        if (!checkIfStringIsASCII(zaehlernummerText.getText())) {
-            JOptionPane.showMessageDialog(this, "Die Zählernummer enthält nicht ASCII Zeichen.");
-        }
-        if (Integer.parseInt(zaehlerstandText.getText()) > 1000000) {
-            int dialog = JOptionPane.showConfirmDialog(this, "Der Wert für den Zählerstand ist sehr hoch. Ist das gewollt?");
-            if (dialog == JOptionPane.NO_OPTION) {
-                zaehlerstandText.setText("Neu eingeben");
-            }
-        }
-        if (eingebautCheck.isSelected() && Integer.parseInt(zaehlerstandText.getText()) > 1000) {
-            int dialog = JOptionPane.showConfirmDialog(this, "Der Wert für den Zählerstand ist für einen neu eingebauten Zähler sehr hoch. Ist das gewollt?");
-            if (dialog == JOptionPane.NO_OPTION) {
-                zaehlerstandText.setText("Neu eingeben");
-            }
-        }
-        if (checkIfDateIsInvalid()) {
-            JOptionPane.showMessageDialog(this, "Das Datum ist entweder in der Zukunft oder älter als 2 Wochen");
-        }
-    }
-
-    private boolean checkIfStringIsASCII(String stringToCheck) {
-        String upperString = stringToCheck.toUpperCase();
-        for (int pos = 0; pos < upperString.length(); pos++) {
-            int ascii = upperString.charAt(pos);
-            if ((ascii < 48 || ascii > 57) && (ascii < 65 || ascii > 90)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean checkIfDateIsInvalid() throws ParseException {
-        boolean isInvalidDate = false;
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
-
-        String enteredDay = datePicker.getModel().getDay() + "";
-        String enteredMonth = datePicker.getModel().getMonth() + 1 + "/";
-        String enteredYear = datePicker.getModel().getYear() + "/";
-
-        String enteredDateStringAsString = enteredYear + enteredMonth + enteredDay;
-        Date enteredDate = sdf.parse(enteredDateStringAsString);
-
-        String tooEarlyString = subtractWeeksFromDate(2);
-        Date tooEarlyDate = sdf.parse(tooEarlyString);
-
-        if (enteredDate.after(Now()) || enteredDate.before(tooEarlyDate)) {
-            isInvalidDate = true;
-        }
-        return isInvalidDate;
-    }
-
-    private String subtractWeeksFromDate(int weeks) {
-        String wantedDate;
-        Instant instant = Instant.now();
-        ZoneId zone = ZoneId.of("Europe/Paris");
-        ZonedDateTime zdtNow =instant.atZone(zone);
-
-        ZonedDateTime zdtWeeksAgo = zdtNow.minusWeeks(weeks);
-
-        String year = String.valueOf(zdtWeeksAgo.getYear());
-        String month = String.valueOf(zdtWeeksAgo.getMonth().ordinal()+1);
-        String day = String.valueOf(zdtWeeksAgo.getDayOfMonth());
-
-        wantedDate = year + "/" + month + "/" + day;
-
-        return wantedDate;
-    }
 }
