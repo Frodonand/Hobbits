@@ -82,6 +82,18 @@ public class ZaehlerEingabeFormular extends JFrame {
         JButton speichernBtn = new JButton("Speichern");
         JButton anzeigenBtn = new JButton("Daten anzeigen");
 
+        JPanel gridUnten = new JPanel(new GridLayout(3,2));
+
+        JLabel datenKundennummerLabel = new JLabel("Kundennummer Filter: ");
+        JButton gefiltertBtn = new JButton("gefilterte Daten anzeigen");
+        gridUnten.add(new JLabel(""));
+        gridUnten.add(datenKundennummerLabel);
+        gridUnten.add(datenKundennummer);
+        gridUnten.add(speichernBtn,3);
+        gridUnten.add(anzeigenBtn,4);
+        gridUnten.add(gefiltertBtn,5);
+
+
 
         //Hinzufügen der Components zum Grid
         con.add(grid, BorderLayout.CENTER);
@@ -100,7 +112,7 @@ public class ZaehlerEingabeFormular extends JFrame {
         grid.add(kommentar);
         grid.add(kommentarText);
         con.add(speichernBtn, BorderLayout.SOUTH);
-        con.add(anzeigenBtn, BorderLayout.EAST);
+        con.add(gridUnten, BorderLayout.EAST);
 
         anzeigenBtn.addActionListener(e -> datenFensteranzeigen(zaehlerdaten));
         speichernBtn.addActionListener(e -> saveZaehler());
