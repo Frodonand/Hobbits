@@ -28,6 +28,7 @@ public class ZaehlerEingabeFormular extends JFrame {
     private final JCheckBox eingebautCheck = new JCheckBox();
     private final JTextField zaehlerstandText = new JTextField();
     private final JTextField kommentarText = new JTextField();
+    private JTextField datenKundennummer = new JTextField();
     private final JDatePickerImpl datePicker;
     private final JDatePanelImpl datePanel;
 
@@ -111,8 +112,7 @@ public class ZaehlerEingabeFormular extends JFrame {
         grid.add(zaehlerstandText);
         grid.add(kommentar);
         grid.add(kommentarText);
-        con.add(speichernBtn, BorderLayout.SOUTH);
-        con.add(gridUnten, BorderLayout.EAST);
+        con.add(gridUnten, BorderLayout.SOUTH);
 
         anzeigenBtn.addActionListener(e -> datenFensteranzeigen(zaehlerdaten));
         speichernBtn.addActionListener(e -> saveZaehler());
