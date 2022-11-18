@@ -6,14 +6,14 @@ import com.schule.model.ZaehlerDatenModel;
 import com.schule.services.PlausibilitaetsPruefung;
 
 import java.awt.*;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
 
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
@@ -30,6 +30,7 @@ public class ZaehlerEingabeFormular extends JFrame {
     private final JTextField kommentarText = new JTextField();
     private final JDatePickerImpl datePicker;
     private final JDatePanelImpl datePanel;
+
 
   private final ZaehlerDatenModel datenModel;
 
@@ -58,7 +59,8 @@ public class ZaehlerEingabeFormular extends JFrame {
       }
     );
 
-    zaehlerdaten = datenModel.getData();
+
+                zaehlerdaten = datenModel.getData();
 
         final Container con = getContentPane();
 
@@ -106,6 +108,24 @@ public class ZaehlerEingabeFormular extends JFrame {
         speichernBtn.addActionListener(e -> saveZaehler());
         setSize(600, 300);
         setVisible(true);
+
+        kommentarText.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if(kommentarText.getText().equals("Gandalf")){
+                    showGandalf();
+                }
+            }
+        });
+
+    }
+
+    private void showGandalf() {
+        ImageIcon imageIcon = new ImageIcon("Resources/Gandalf.jpg");
+        JOptionPane.showMessageDialog(null,
+                "",
+                "YOU SHALL NOT PASS!", JOptionPane.INFORMATION_MESSAGE,
+                imageIcon);
     }
 
     private void datenFensteranzeigen(List<Zaehlerdatum> zaehlerdaten) {
@@ -121,44 +141,49 @@ public class ZaehlerEingabeFormular extends JFrame {
         Date datum = (Date) datePicker.getModel().getValue();
         boolean eingebaut = eingebautCheck.isSelected();
         String kommentar = kommentarText.getText();
-        
-        try {
-          kundennummer = Integer.parseInt(kundenummerText.getText());
-        } catch (Exception e) {}
-        try {
-          zaehlerstand = Integer.parseInt(zaehlerstandText.getText());
-        } catch (Exception e) {}    
 
-        Zaehlerdatum newZaehlerdatum = new Zaehlerdatum(
-                kundennummer,
-                zaehlerart,
-                zaehlernummer,
-                datum,
-                eingebaut,
-                zaehlerstand,
-                kommentar
-        );
-        String s = PlausibilitaetsPruefung.machePlausabilitaetspruefung(kundenummerText.getText(),zaehlernummer,
-        zaehlerstandText.getText(),eingebaut,datum);
-        boolean exists = false;
-        for (Zaehlerdatum curr : zaehlerdaten) {
-            if (newZaehlerdatum.equals(curr)) {
-                exists = true;
+
+        try {
+                    kundennummer = Integer.parseInt(kundenummerText.getText());
+                } catch (Exception e) {
+                }
+                try {
+                    zaehlerstand = Integer.parseInt(zaehlerstandText.getText());
+                } catch (Exception e) {
+                }
+
+                Zaehlerdatum newZaehlerdatum = new Zaehlerdatum(
+                        kundennummer,
+                        zaehlerart,
+                        zaehlernummer,
+                        datum,
+                        eingebaut,
+                        zaehlerstand,
+                        kommentar
+                );
+                String s = PlausibilitaetsPruefung.machePlausabilitaetspruefung(kundenummerText.getText(), zaehlernummer,
+                        zaehlerstandText.getText(), eingebaut, datum);
+                boolean exists = false;
+                for (Zaehlerdatum curr : zaehlerdaten) {
+                    if (newZaehlerdatum.equals(curr)) {
+                        exists = true;
+                    }
+                }
+                if (exists) {
+                    showErrorWindow("Dieser Eintrag exsistiert bereits!");
+                } else if (!s.equals("")) {
+                    showErrorWindow(s);
+                } else {
+                    zaehlerdaten.add(newZaehlerdatum);
+                }
             }
-        }
-        if (exists) {
-            showErrorWindow("Dieser Eintrag exsistiert bereits!");
-        } else if(!s.equals("")){
-            showErrorWindow(s);
-        } else{
-            zaehlerdaten.add(newZaehlerdatum);
-        }
-    }
 
-    private void showErrorWindow(String message) {
-        String appendedMessage =
-                "Eine Speicherung des Datensatzes ist nicht erfolgt. \n" + message;
-        JOptionPane.showMessageDialog(this, appendedMessage);
-    }
+            private void showErrorWindow(String message) {
+                String appendedMessage =
+                        "Eine Speicherung des Datensatzes ist nicht erfolgt. \n" + message;
+                JOptionPane.showMessageDialog(this, appendedMessage);
+            }
+
+
 
 }
