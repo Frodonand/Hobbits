@@ -6,7 +6,11 @@ import com.schule.model.ZaehlerDatenModel;
 import com.schule.services.PlausibilitaetsPruefung;
 
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -28,9 +32,9 @@ public class ZaehlerEingabeFormular extends JFrame {
     private final JCheckBox eingebautCheck = new JCheckBox();
     private final JTextField zaehlerstandText = new JTextField();
     private final JTextField kommentarText = new JTextField();
+    private JTextField datenKundennummer = new JTextField();
     private final JDatePickerImpl datePicker;
     private final JDatePanelImpl datePanel;
-
 
   private final ZaehlerDatenModel datenModel;
 
@@ -59,8 +63,7 @@ public class ZaehlerEingabeFormular extends JFrame {
       }
     );
 
-
-                zaehlerdaten = datenModel.getData();
+    zaehlerdaten = datenModel.getData();
 
         final Container con = getContentPane();
 
@@ -84,6 +87,18 @@ public class ZaehlerEingabeFormular extends JFrame {
         JButton speichernBtn = new JButton("Speichern");
         JButton anzeigenBtn = new JButton("Daten anzeigen");
 
+        JPanel gridUnten = new JPanel(new GridLayout(2,3));
+
+        JLabel datenKundennummerLabel = new JLabel("Kundennummer Filter: ");
+        JButton gefiltertBtn = new JButton("gefilterte Daten anzeigen");
+        gridUnten.add(new JLabel(""));
+        gridUnten.add(datenKundennummerLabel);
+        gridUnten.add(datenKundennummer);
+        gridUnten.add(speichernBtn,3);
+        gridUnten.add(anzeigenBtn,4);
+        gridUnten.add(gefiltertBtn,5);
+
+
 
         //Hinzufügen der Components zum Grid
         con.add(grid, BorderLayout.CENTER);
@@ -101,11 +116,11 @@ public class ZaehlerEingabeFormular extends JFrame {
         grid.add(zaehlerstandText);
         grid.add(kommentar);
         grid.add(kommentarText);
-        con.add(speichernBtn, BorderLayout.SOUTH);
-        con.add(anzeigenBtn, BorderLayout.EAST);
+        con.add(gridUnten, BorderLayout.SOUTH);
 
-        anzeigenBtn.addActionListener(e -> datenFensteranzeigen(zaehlerdaten));
+        anzeigenBtn.addActionListener(e -> datenFensteranzeigen());
         speichernBtn.addActionListener(e -> saveZaehler());
+        gefiltertBtn.addActionListener(e -> filterListforCustomer());
         setSize(600, 300);
         setVisible(true);
 
@@ -128,8 +143,8 @@ public class ZaehlerEingabeFormular extends JFrame {
                 imageIcon);
     }
 
-    private void datenFensteranzeigen(List<Zaehlerdatum> zaehlerdaten) {
-        new DatenFenster(zaehlerdaten);
+    private void datenFensteranzeigen() {
+        new DatenFenster();
     }
 
     private void saveZaehler() {
@@ -141,49 +156,51 @@ public class ZaehlerEingabeFormular extends JFrame {
         Date datum = (Date) datePicker.getModel().getValue();
         boolean eingebaut = eingebautCheck.isSelected();
         String kommentar = kommentarText.getText();
-
-
+        
         try {
-                    kundennummer = Integer.parseInt(kundenummerText.getText());
-                } catch (Exception e) {
-                }
-                try {
-                    zaehlerstand = Integer.parseInt(zaehlerstandText.getText());
-                } catch (Exception e) {
-                }
+          kundennummer = Integer.parseInt(kundenummerText.getText());
+        } catch (Exception e) {}
+        try {
+          zaehlerstand = Integer.parseInt(zaehlerstandText.getText());
+        } catch (Exception e) {}    
 
-                Zaehlerdatum newZaehlerdatum = new Zaehlerdatum(
-                        kundennummer,
-                        zaehlerart,
-                        zaehlernummer,
-                        datum,
-                        eingebaut,
-                        zaehlerstand,
-                        kommentar
-                );
-                String s = PlausibilitaetsPruefung.machePlausabilitaetspruefung(kundenummerText.getText(), zaehlernummer,
-                        zaehlerstandText.getText(), eingebaut, datum);
-                boolean exists = false;
-                for (Zaehlerdatum curr : zaehlerdaten) {
-                    if (newZaehlerdatum.equals(curr)) {
-                        exists = true;
-                    }
-                }
-                if (exists) {
-                    showErrorWindow("Dieser Eintrag exsistiert bereits!");
-                } else if (!s.equals("")) {
-                    showErrorWindow(s);
-                } else {
-                    zaehlerdaten.add(newZaehlerdatum);
-                }
+        Zaehlerdatum newZaehlerdatum = new Zaehlerdatum(
+                kundennummer,
+                zaehlerart,
+                zaehlernummer,
+                datum,
+                eingebaut,
+                zaehlerstand,
+                kommentar
+        );
+        String s = PlausibilitaetsPruefung.machePlausabilitaetspruefung(kundenummerText.getText(),zaehlernummer,
+        zaehlerstandText.getText(),eingebaut,datum);
+        boolean exists = false;
+        for (Zaehlerdatum curr : zaehlerdaten) {
+            if (newZaehlerdatum.equals(curr)) {
+                exists = true;
             }
+        }
+        if (exists) {
+            showErrorWindow("Dieser Eintrag exsistiert bereits!");
+        } else if(!s.equals("")){
+            showErrorWindow(s);
+        } else{
+            zaehlerdaten.add(newZaehlerdatum);
+        }
+    }
 
-            private void showErrorWindow(String message) {
-                String appendedMessage =
-                        "Eine Speicherung des Datensatzes ist nicht erfolgt. \n" + message;
-                JOptionPane.showMessageDialog(this, appendedMessage);
-            }
+    private void showErrorWindow(String message) {
+        String appendedMessage =
+                "Eine Speicherung des Datensatzes ist nicht erfolgt. \n" + message;
+        JOptionPane.showMessageDialog(this, appendedMessage);
+    }
 
-
-
+    private void filterListforCustomer(){
+     int kdToCheck = 0;
+     try {
+      kdToCheck = Integer.parseInt(datenKundennummer.getText());
+     } catch (Exception e) {}
+      new DatenFenster(kdToCheck);
+    }
 }

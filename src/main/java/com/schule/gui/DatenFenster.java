@@ -18,6 +18,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyAdapter;
 import java.text.DateFormat;
 import java.awt.Container;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -27,12 +28,39 @@ public class DatenFenster extends JFrame{
     private JTable datenanzeigeFeld;
     private JScrollPane sp;
     private List<Zaehlerdatum> dataList;
-    private ZaehlerDatenModel persistance;
+    private ZaehlerDatenModel persistance = ZaehlerDatenModel.getInstance();
+    public final static int NO_FILTER = -1;
+    private int filter =-1;
 
-    public DatenFenster(List<Zaehlerdatum> dataList){
+    public DatenFenster(){
+        init();
+        this.dataList = persistance.getData();
+    }
+
+    public DatenFenster(int filter){
+        this.filter = filter;
+        filter();
+        init();
+    }
+
+
+    private void filter(){
+        this.dataList = persistance.getData();
+        if(filter!=-1){
+        List<Zaehlerdatum> dataListFilter = new ArrayList<>();
+        for (Zaehlerdatum kdaten:dataList) {
+            if(kdaten.getKundennummer() == filter){
+                dataListFilter.add(kdaten);
+            }
+          }
+        dataList = dataListFilter;
+        }
+
+    }
+
+    private void init(){
 
         persistance = ZaehlerDatenModel.getInstance();
-        this.dataList = dataList;
         datenanzeigeFeld = new JTable() {
         private static final long serialVersionUID = 1L;
 
@@ -78,6 +106,7 @@ public class DatenFenster extends JFrame{
     }
 
     public void update(){
+        filter();
         Object[][] allData = new Object[dataList.size()][7];
         Locale locale = new Locale("de", "DE");
         DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.DEFAULT, locale);
@@ -113,7 +142,9 @@ public class DatenFenster extends JFrame{
     }
 
     private void removeEntry(int index){
-        Zaehlerdatum curr = persistance.getEntry(index);
+        if(index != -1){
+        Zaehlerdatum curr = dataList.get(index);
+        int indexPersistance = persistance.getIndex(curr);
         String s = "Kundennummer: " +  curr.getKundennummer() + "\n";
         s += "Zählerart: "+ curr.getZaehlerart() + "\n";
         s += "Zählernummer: " +  curr.getZaehlernummer() + "\n";
@@ -127,9 +158,10 @@ public class DatenFenster extends JFrame{
         if (dialog == JOptionPane.NO_OPTION) {
             JOptionPane.showMessageDialog(this, "Die Zählerdaten wurden nicht gelöscht.");
         } else{
-        persistance.removeEntry(index);
-        JOptionPane.showMessageDialog(this, "Die Zählerdaten wurden gelöscht.");
-        update();
+            persistance.removeEntry(indexPersistance);
+            JOptionPane.showMessageDialog(this, "Die Zählerdaten wurden gelöscht.");
+            update();
+        }
     }
     }
 
