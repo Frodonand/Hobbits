@@ -15,6 +15,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
 
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
@@ -120,6 +123,24 @@ public class ZaehlerEingabeFormular extends JFrame {
         gefiltertBtn.addActionListener(e -> filterListforCustomer());
         setSize(600, 300);
         setVisible(true);
+
+        kommentarText.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if(kommentarText.getText().equals("Gandalf")){
+                    showGandalf();
+                }
+            }
+        });
+
+    }
+
+    private void showGandalf() {
+        ImageIcon imageIcon = new ImageIcon("Resources/Gandalf.jpg");
+        JOptionPane.showMessageDialog(null,
+                "",
+                "YOU SHALL NOT PASS!", JOptionPane.INFORMATION_MESSAGE,
+                imageIcon);
     }
 
     private void datenFensteranzeigen() {
@@ -178,7 +199,7 @@ public class ZaehlerEingabeFormular extends JFrame {
     private void filterListforCustomer(){
      int kdToCheck = 0;
      try {
-      kdToCheck = Integer.parseInt(datenKundennummer.getText()); 
+      kdToCheck = Integer.parseInt(datenKundennummer.getText());
      } catch (Exception e) {}
       new DatenFenster(kdToCheck);
     }
