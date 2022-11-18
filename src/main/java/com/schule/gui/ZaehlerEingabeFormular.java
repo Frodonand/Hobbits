@@ -84,7 +84,7 @@ public class ZaehlerEingabeFormular extends JFrame {
         JButton speichernBtn = new JButton("Speichern");
         JButton anzeigenBtn = new JButton("Daten anzeigen");
 
-        JPanel gridUnten = new JPanel(new GridLayout(3,2));
+        JPanel gridUnten = new JPanel(new GridLayout(2,3));
 
         JLabel datenKundennummerLabel = new JLabel("Kundennummer Filter: ");
         JButton gefiltertBtn = new JButton("gefilterte Daten anzeigen");
