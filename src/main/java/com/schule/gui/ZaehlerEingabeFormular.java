@@ -10,6 +10,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -114,14 +115,15 @@ public class ZaehlerEingabeFormular extends JFrame {
         grid.add(kommentarText);
         con.add(gridUnten, BorderLayout.SOUTH);
 
-        anzeigenBtn.addActionListener(e -> datenFensteranzeigen(zaehlerdaten));
+        anzeigenBtn.addActionListener(e -> datenFensteranzeigen());
         speichernBtn.addActionListener(e -> saveZaehler());
+        gefiltertBtn.addActionListener(e -> filterListforCustomer());
         setSize(600, 300);
         setVisible(true);
     }
 
-    private void datenFensteranzeigen(List<Zaehlerdatum> zaehlerdaten) {
-        new DatenFenster(zaehlerdaten);
+    private void datenFensteranzeigen() {
+        new DatenFenster();
     }
 
     private void saveZaehler() {
@@ -173,4 +175,11 @@ public class ZaehlerEingabeFormular extends JFrame {
         JOptionPane.showMessageDialog(this, appendedMessage);
     }
 
+    private void filterListforCustomer(){
+     int kdToCheck = 0;
+     try {
+      kdToCheck = Integer.parseInt(datenKundennummer.getText()); 
+     } catch (Exception e) {}
+      new DatenFenster(kdToCheck);
+    }
 }
