@@ -1,4 +1,4 @@
-package com.schule.server;
+package com.schule.server.data;
 
 import java.util.UUID;
 
@@ -13,7 +13,7 @@ public class Kunde {
     private UUID id;
     private String name;
     private String vorname;
-    
+
     public Kunde(String name, String vorname) {
         this.name = name;
         this.vorname = vorname;

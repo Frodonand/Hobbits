@@ -1,4 +1,4 @@
-package com.schule.server;
+package com.schule.server.data;
 
 import java.time.LocalDate;
 import java.util.UUID;
