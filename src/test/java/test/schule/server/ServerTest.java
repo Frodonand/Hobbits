@@ -33,8 +33,8 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import com.schule.server.Ablesung;
-import com.schule.server.Kunde;
+import com.schule.server.data.Ablesung;
+import com.schule.server.data.Kunde;
 import com.schule.server.Server;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
