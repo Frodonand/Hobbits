@@ -15,7 +15,7 @@ public class Server {
     public static void startServer(String url, boolean loadFromFile){
         if(server == null){
         final ResourceConfig rc = new ResourceConfig().packages(PACK);
-        HttpServer server = JdkHttpServerFactory.createHttpServer(
+        server = JdkHttpServerFactory.createHttpServer(
           URI.create(url),
           rc
         );
