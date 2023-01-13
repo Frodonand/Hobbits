@@ -9,11 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -299,6 +295,7 @@ class ServerTest {
 	@Test
 	@DisplayName("Ein bestehender Kunde kann erfolgreich gelöscht werden")
 	void t17_deleteKunde() {
+		kunden.add(k1_crudTest);
 		String k1ID = k1_crudTest.getId().toString();
 		kunden.remove(k1_crudTest);
 		ablesungen.get(k1_crudTest).forEach(a -> a.setKunde(null));
