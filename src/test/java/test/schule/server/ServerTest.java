@@ -44,7 +44,7 @@ class ServerTest {
 	private static final Client client = ClientBuilder.newClient();
 	private WebTarget target = client.target(url);
 
-	private static final String endpointHasuverwaltung = "/hausverwaltung";
+	private static final String endpointHasuverwaltung = "";
 	private static final String endpointKunden = "kunden";
 	private static final String endpointAblesungen = "ablesungen";
 	private static final String endpointAblesungClientStart = "ablesungenVorZweiJahrenHeute";
