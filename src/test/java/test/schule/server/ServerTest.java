@@ -39,6 +39,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import com.schule.server.data.Ablesung;
 import com.schule.server.data.Kunde;
+import com.schule.server.model.KundenModel;
 import com.schule.server.Server;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -88,7 +89,8 @@ class ServerTest {
 	void resetClient() {
 		List<Kunde> kundenCopy = new ArrayList<>();
 		kundenCopy.addAll(kunden);
-		KundenResource.setKundenListe(kundenCopy);
+		KundenModel kModel = KundenModel.getInstance();
+		kModel.setData(kundenCopy);
 		target = client.target(url.concat(endpointHasuverwaltung));
 	}
 

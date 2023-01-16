@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.schule.server.data.Kunde;
+import com.schule.server.model.KundenModel;
 
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -17,7 +18,7 @@ import jakarta.ws.rs.Produces;
 
 @Path("kunden")
 public class KundenResource {
-    private static List<Kunde> kundenListe = new ArrayList<Kunde>();
+    private static KundenModel kundenModel = KundenModel.getInstance();
 
     @Path("/{id}")
     @DELETE
@@ -26,7 +27,7 @@ public class KundenResource {
         System.out.println(id);
         try{
             UUID uuid = UUID.fromString(id);
-            kundenListe.removeIf(k -> k.getId().equals(uuid));
+            kundenModel.getData().removeIf(k -> k.getId().equals(uuid));
             return Response.status(Response.Status.OK).build();
         }catch(IllegalArgumentException e) {
                 return Response.status(Response.Status.NOT_FOUND).entity("ich bin toll").build();
@@ -37,13 +38,7 @@ public class KundenResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getKundendaten(){
-        return Response.status(Response.Status.OK).entity(kundenListe).build();
-    }
-    public static List<Kunde> getKundenListe() {
-        return kundenListe;
-    }
-    public static void setKundenListe(List<Kunde> kundenListe) {
-        KundenResource.kundenListe = kundenListe;
+        return Response.status(Response.Status.OK).entity(kundenModel.getData()).build();
     }
 
     @PUT
@@ -53,7 +48,7 @@ public class KundenResource {
         if (k == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Kunde angeben").build();
         }
-        for (Kunde kd:kundenListe) {
+        for (Kunde kd:kundenModel.getData()) {
             if(k.getId().equals(kd.getId())){
                 kd.setName(k.getName());
                 kd.setVorname(k.getVorname());
@@ -70,7 +65,7 @@ public class KundenResource {
         System.out.println(kunde);
         if(kunde!=null){
             kunde.setId(UUID.randomUUID());
-            kundenListe.add(kunde);
+            kundenModel.getData().add(kunde);
             return Response.status(Response.Status.CREATED).entity(kunde).build();
         }
         return Response.status(Response.Status.BAD_REQUEST).entity("Kein Kunden erhalten").build();
