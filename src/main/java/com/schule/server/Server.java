@@ -2,10 +2,7 @@ package com.schule.server;
 
 import java.net.URI;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.schule.server.data.Ablesung;
@@ -33,36 +30,32 @@ public class Server {
 
     public static void main(String[] args) {
         startServer("http://localhost:8080/", true);
+        stopServer(true);
     }
 
     public static void startServer(String url, boolean loadFromFile){
         if(server == null){
             if(loadFromFile){
-                HashMap<Kunde,List<Ablesung>> ablesungenMap = new HashMap<>();
+                HashMap<UUID,List<Ablesung>> ablesungenMap = new HashMap<>();
                 List<Kunde> alleKunden = kundenPersistance.load();
                 for(Kunde k : alleKunden){
-                    ablesungenMap.put(k,new ArrayList<Ablesung>());
+                    ablesungenMap.put(k.getId(),new ArrayList<Ablesung>());
                 }
                 kundenModel.setData(alleKunden);
                 List<Ablesung> alleAblesungen = ablesungenPersistance.load();
                 for(Ablesung a : alleAblesungen){
-                    for(Kunde k : alleKunden){
-                        if(k.getId().equals(a.getKunde().getId())){
-                            ablesungenMap.get(k).add(a);
-                            a.setKunde(k);
-                            break;
-                        }
+                    ablesungenMap.get(a.getKunde().getId()).add(a);
                     }
+                ablesungModel.setAblesungsMap(ablesungenMap);
                 }
             }
+        System.out.println(ablesungModel.getAblesungsMap());
             final ResourceConfig rc = new ResourceConfig().packages(PACK);
             server = JdkHttpServerFactory.createHttpServer(
             URI.create(url),
             rc
         );
     }
-    }
-
 
     public static void stopServer(boolean saveToFile){
         if(saveToFile){

@@ -3,12 +3,13 @@ package com.schule.server.model;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import com.schule.server.data.Ablesung;
 import com.schule.server.data.Kunde;
 
 public class AblesungsModel {
-    private HashMap<Kunde,List<Ablesung>> ablesungsMap = new HashMap<Kunde, List<Ablesung>>();
+    private HashMap<UUID,List<Ablesung>> ablesungsMap = new HashMap<UUID, List<Ablesung>>();
     
     private static AblesungsModel instance;
     
@@ -21,19 +22,19 @@ public class AblesungsModel {
         return instance;
     }
 
-    public HashMap<Kunde, List<Ablesung>> getAblesungsMap() {
+    public HashMap<UUID, List<Ablesung>> getAblesungsMap() {
         return ablesungsMap;
     }
 
-    public void setAblesungsMap(HashMap<Kunde, List<Ablesung>> ablesungsMap) {
+    public void setAblesungsMap(HashMap<UUID, List<Ablesung>> ablesungsMap) {
         this.ablesungsMap = ablesungsMap;
     }
 
-    public void add(Kunde kunde,Ablesung ablesung){
-        List<Ablesung> list = ablesungsMap.get(kunde);
+    public void add(UUID uuid, Ablesung ablesung){
+        List<Ablesung> list = ablesungsMap.get(uuid);
         if(list == null){
-            ablesungsMap.put(kunde,new ArrayList<Ablesung>());
-            list = ablesungsMap.get(kunde);
+            ablesungsMap.put(uuid,new ArrayList<Ablesung>());
+            list = ablesungsMap.get(uuid);
             list.add(ablesung);
         }else {
             list.add(ablesung);
