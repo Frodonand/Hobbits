@@ -65,6 +65,7 @@ class ServerTest {
 	@BeforeAll
 	static void setUp() {
 		setUpKundenList();
+		setUpForRangeTest();
 		Server.startServer(url, false);
 	}
 
@@ -107,7 +108,7 @@ class ServerTest {
 				.post(Entity.entity(k, MediaType.APPLICATION_JSON));
 	}
 
-	private void setUpForRangeTest() {
+	private static void setUpForRangeTest() {
 		ablesungen = new HashMap<>();
 		for (Kunde k : kunden) {
 			ablesungen.put(k, new ArrayList<>());
@@ -271,6 +272,7 @@ class ServerTest {
 	void t14_deleteAblesung() {
 		ablesungen.get(k1_crudTest).remove(ablesung_crudTest);
 		String aid = ablesung_crudTest.getId().toString();
+		System.out.println(ablesung_crudTest);
 		Response re = target.path(endpointAblesungen.concat("/").concat(aid)).request()
 				.accept(MediaType.APPLICATION_JSON).delete();
 		assertEquals(Response.Status.OK.getStatusCode(), re.getStatus());

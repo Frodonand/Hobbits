@@ -26,7 +26,7 @@ public class AblesungsResource {
         try {
             UUID uuid = UUID.fromString(id);
             ablesungsModel.getData().removeIf(a -> a.getId() == uuid);
-            return Response.status(Response.Status.OK).build();
+            return Response.status(Response.Status.OK).entity(ablesungsModel.getData()).build();
         } catch (IllegalArgumentException e) {
             return Response.status(Response.Status.NOT_FOUND).entity("Konnte keine UUID aus der ID machen").build();
         }
