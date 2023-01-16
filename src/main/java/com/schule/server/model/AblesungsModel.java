@@ -1,9 +1,11 @@
 package com.schule.server.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.schule.server.data.Ablesung;
+import com.schule.server.data.Kunde;
 
 public class AblesungsModel {
     
