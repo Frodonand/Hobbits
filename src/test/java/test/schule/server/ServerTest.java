@@ -43,21 +43,17 @@ class ServerTest {
 	private static final String url = "http://localhost:8080/test";
 	private static final Client client = ClientBuilder.newClient();
 	private WebTarget target = client.target(url);
-
 	private static final String endpointHasuverwaltung = "";
 	private static final String endpointKunden = "kunden";
 	private static final String endpointAblesungen = "ablesungen";
 	private static final String endpointAblesungClientStart = "ablesungenVorZweiJahrenHeute";
-
 	private static final Kunde k1_crudTest = new Kunde("C", "c");
 	private static final Kunde k2_RangeTest = new Kunde("A", "a");
 	private static final Kunde k3_RangeTest = new Kunde("B", "b");
-
 	private static final int lastYear = LocalDate.now().getYear() - 1;
 	private static final Ablesung ablesung_crudTest = new Ablesung("1", LocalDate.of(lastYear, 8, 25), k2_RangeTest, "test", false,
 			100);
 	private static final Ablesung ablesung_kundeDeletedDuringTest = new Ablesung("1", LocalDate.of(lastYear, 12, 1), k1_crudTest, "test", false, 0);
-
 	private static List<Kunde> kunden;
 	private static HashMap<Kunde, List<Ablesung>> ablesungen;
 	private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -272,7 +268,6 @@ class ServerTest {
 	void t14_deleteAblesung() {
 		ablesungen.get(k1_crudTest).remove(ablesung_crudTest);
 		String aid = ablesung_crudTest.getId().toString();
-		System.out.println(ablesung_crudTest);
 		Response re = target.path(endpointAblesungen.concat("/").concat(aid)).request()
 				.accept(MediaType.APPLICATION_JSON).delete();
 		assertEquals(Response.Status.OK.getStatusCode(), re.getStatus());
