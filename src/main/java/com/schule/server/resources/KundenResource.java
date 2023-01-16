@@ -19,19 +19,20 @@ public class KundenResource {
 @Path("")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.TEXT_PLAIN)
-public Response updateKundendaten(@PathParam("id") UUID id, Kunde k){
+public Response updateKundendaten(Kunde k){
+    if (k == null) {
+        return Response.status(Response.Status.BAD_REQUEST).entity("Kunde angeben").build();
+    }
     for (Kunde kd:kundenListe) {
-            if(id == kd.getId()){
+        System.out.println(kd.getId());
+        System.out.println(k.getId());
+            if(k.getId() == kd.getId()){
                 kd.setName(k.getName());
                 kd.setVorname(k.getVorname());
-                return Response.status(Response.Status.OK).entity(kd).build();
-            } else if (k == null) {
-                return Response.status(Response.Status.BAD_REQUEST).entity(kd).build();
-            } else {
-                return Response.status(Response.Status.NOT_FOUND).entity(kd).build();
+                return Response.status(Response.Status.OK).entity("Update durchgeführt").build();
             }
     }
-    return Response.status(Response.Status.OK).entity(k).build();
+    return Response.status(Response.Status.NOT_FOUND).entity("Kunde nicht gefunden").build();
 }
 
 }
