@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -34,6 +35,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import com.schule.server.data.Ablesung;
 import com.schule.server.data.Kunde;
+import com.schule.server.model.AblesungsModel;
 import com.schule.server.model.KundenModel;
 import com.schule.server.Server;
 
@@ -43,17 +45,21 @@ class ServerTest {
 	private static final String url = "http://localhost:8080/test";
 	private static final Client client = ClientBuilder.newClient();
 	private WebTarget target = client.target(url);
+
 	private static final String endpointHasuverwaltung = "";
 	private static final String endpointKunden = "kunden";
 	private static final String endpointAblesungen = "ablesungen";
-	private static final String endpointAblesungClientStart = "ablesungenVorZweiJahrenHeute";
+	private static final String endpointAblesungClientStart = "ablesungen/vorZweiJahrenHeute";
+
 	private static final Kunde k1_crudTest = new Kunde("C", "c");
 	private static final Kunde k2_RangeTest = new Kunde("A", "a");
 	private static final Kunde k3_RangeTest = new Kunde("B", "b");
+
 	private static final int lastYear = LocalDate.now().getYear() - 1;
 	private static final Ablesung ablesung_crudTest = new Ablesung("1", LocalDate.of(lastYear, 8, 25), k2_RangeTest, "test", false,
 			100);
 	private static final Ablesung ablesung_kundeDeletedDuringTest = new Ablesung("1", LocalDate.of(lastYear, 12, 1), k1_crudTest, "test", false, 0);
+
 	private static List<Kunde> kunden;
 	private static HashMap<Kunde, List<Ablesung>> ablesungen;
 	private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -61,7 +67,6 @@ class ServerTest {
 	@BeforeAll
 	static void setUp() {
 		setUpKundenList();
-		setUpForRangeTest();
 		Server.startServer(url, false);
 	}
 
@@ -104,7 +109,7 @@ class ServerTest {
 				.post(Entity.entity(k, MediaType.APPLICATION_JSON));
 	}
 
-	private static void setUpForRangeTest() {
+	private void setUpForRangeTest() {
 		ablesungen = new HashMap<>();
 		for (Kunde k : kunden) {
 			ablesungen.put(k, new ArrayList<>());
@@ -287,7 +292,16 @@ class ServerTest {
 	@Test
 	@DisplayName("Alle entsprechenden Ablesungen für den Start des Clients können vom Server empfangen werden")
 	void t16_getAblesungenForClientStart() {
+		AblesungsModel aModel = AblesungsModel.getInstance();
+		HashMap<UUID,List<Ablesung>> map = new HashMap<>();
+		setUpForRangeTest();
+		for(Kunde k : ablesungen.keySet()){
+			map.put(k.getId(), ablesungen.get(k));
+		}
+		aModel.setAblesungsMap(map);
+
 		Response re = target.path(endpointAblesungClientStart).request().accept(MediaType.APPLICATION_JSON).get();
+		System.out.println(re);
 		List<Ablesung> ablesungenResult = re.readEntity(new GenericType<List<Ablesung>>() {
 		});
 		for (List<Ablesung> l : ablesungen.values()) {
