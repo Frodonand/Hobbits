@@ -9,13 +9,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import com.schule.server.model.AblesungsModel;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,6 +64,7 @@ class ServerTest {
 	static void setUp() {
 		setUpKundenList();
 		Server.startServer(url, false);
+		setUpForRangeTest();
 	}
 
 	private static void setUpKundenList() {
@@ -86,6 +85,9 @@ class ServerTest {
 		kundenCopy.addAll(kunden);
 		KundenModel kModel = KundenModel.getInstance();
 		kModel.setData(kundenCopy);
+		HashMap<UUID,List<Ablesung>> ablesungsCopy = new HashMap<>();
+		AblesungsModel aModel = AblesungsModel.getInstance();
+		aModel.setAblesungsMap(ablesungsCopy);
 		target = client.target(url.concat(endpointHasuverwaltung));
 	}
 
@@ -107,7 +109,7 @@ class ServerTest {
 				.post(Entity.entity(k, MediaType.APPLICATION_JSON));
 	}
 
-	private void setUpForRangeTest() {
+	private static void setUpForRangeTest() {
 		ablesungen = new HashMap<>();
 		for (Kunde k : kunden) {
 			ablesungen.put(k, new ArrayList<>());
@@ -190,7 +192,9 @@ class ServerTest {
 		Collection<List<Ablesung>> lists = ablesungen.values();
 		for (List<Ablesung> l : lists) {
 			for (Ablesung a : l) {
+
 				Response re = postNeueAblesung(a);
+				System.out.println(re);
 				assertEquals(Response.Status.CREATED.getStatusCode(), re.getStatus());
 
 				Ablesung result = re.readEntity(Ablesung.class);
