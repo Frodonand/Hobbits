@@ -1,6 +1,12 @@
 package com.schule.server;
 
 import java.net.URI;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.schule.server.data.Ablesung;
 import com.schule.server.data.Kunde;
@@ -27,20 +33,32 @@ public class Server {
 
     public static void main(String[] args) {
         startServer("http://localhost:8080/", true);
-        stopServer( true);
-
     }
 
     public static void startServer(String url, boolean loadFromFile){
         if(server == null){
             if(loadFromFile){
-                kundenModel.setData(kundenPersistance.load());
-                ablesungModel.setData(ablesungenPersistance.load());
+                HashMap<Kunde,List<Ablesung>> ablesungenMap = new HashMap<>();
+                List<Kunde> alleKunden = kundenPersistance.load();
+                for(Kunde k : alleKunden){
+                    ablesungenMap.put(k,new ArrayList<Ablesung>());
+                }
+                kundenModel.setData(alleKunden);
+                List<Ablesung> alleAblesungen = ablesungenPersistance.load();
+                for(Ablesung a : alleAblesungen){
+                    for(Kunde k : alleKunden){
+                        if(k.getId().equals(a.getKunde().getId())){
+                            ablesungenMap.get(k).add(a);
+                            a.setKunde(k);
+                            break;
+                        }
+                    }
+                }
             }
-        final ResourceConfig rc = new ResourceConfig().packages(PACK);
-        server = JdkHttpServerFactory.createHttpServer(
-          URI.create(url),
-          rc
+            final ResourceConfig rc = new ResourceConfig().packages(PACK);
+            server = JdkHttpServerFactory.createHttpServer(
+            URI.create(url),
+            rc
         );
     }
     }
@@ -49,7 +67,12 @@ public class Server {
     public static void stopServer(boolean saveToFile){
         if(saveToFile){
             kundenPersistance.save(kundenModel.getData());
-            ablesungenPersistance.save(ablesungModel.getData());
+            List<Ablesung> ablesungenToSave = new ArrayList<>();
+            Collection<List<Ablesung>> ablesungen = ablesungModel.getAblesungsMap().values();
+            for (List<Ablesung> list : ablesungen){
+                ablesungenToSave.addAll(list);
+            }
+            ablesungenPersistance.save(ablesungenToSave);
         }
         if(server != null){
         server.stop(0);   
