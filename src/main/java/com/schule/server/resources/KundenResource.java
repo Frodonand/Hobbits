@@ -14,13 +14,22 @@ import jakarta.ws.rs.core.Response;
 
 @Path("/kunden")
 public class KundenResource {
-    List<Kunde> kundenListe = new ArrayList<Kunde>();
+
+    private static List<Kunde> kundenListe = new ArrayList<Kunde>();
 
     @Path("")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getKundendaten(){
         return Response.status(Response.Status.OK).entity(kundenListe).build();
+    }
+
+    public static List<Kunde> getKundenListe() {
+        return kundenListe;
+    }
+
+    public static void setKundenListe(List<Kunde> kundenListe) {
+        KundenResource.kundenListe = kundenListe;
     }
 
 }
