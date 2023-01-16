@@ -9,11 +9,32 @@ import com.schule.server.data.Kunde;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 
 @Path("/kunden")
 public class KundenResource {
-    List<Kunde> kundenListe = new ArrayList<Kunde>();
+
+    private static List<Kunde> kundenListe = new ArrayList<Kunde>();
+
+    @Path("")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getKundendaten(){
+        return Response.status(Response.Status.OK).entity(kundenListe).build();
+    }
+
+    public static List<Kunde> getKundenListe() {
+        return kundenListe;
+    }
+
+    public static void setKundenListe(List<Kunde> kundenListe) {
+        KundenResource.kundenListe = kundenListe;
+    }
 
 @PUT
 @Path("")
@@ -24,9 +45,7 @@ public Response updateKundendaten(Kunde k){
         return Response.status(Response.Status.BAD_REQUEST).entity("Kunde angeben").build();
     }
     for (Kunde kd:kundenListe) {
-        System.out.println(kd.getId());
-        System.out.println(k.getId());
-            if(k.getId() == kd.getId()){
+            if(k.getId().equals(kd.getId())){
                 kd.setName(k.getName());
                 kd.setVorname(k.getVorname());
                 return Response.status(Response.Status.OK).entity("Update durchgeführt").build();
