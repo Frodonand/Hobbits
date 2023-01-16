@@ -1,7 +1,5 @@
 package com.schule.server.resources;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import com.schule.server.data.Kunde;
