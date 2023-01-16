@@ -30,7 +30,20 @@ public class KundenResource {
         }catch(IllegalArgumentException e) {
                 return Response.status(Response.Status.NOT_FOUND).entity("ich bin toll").build();
         }
+    }
 
+    @Path("/{id}")
+    @GET
+    @Produces({MediaType.APPLICATION_JSON,MediaType.TEXT_PLAIN})
+    public Response getCustomerById(@PathParam("id") String id) {
+        try{
+            UUID uuid = UUID.fromString(id);
+            int index = kundenModel.getData().indexOf(uuid);
+            Kunde kunde = kundenModel.getData().get(index)
+            return Response.status(Response.Status.OK).entity(kunde).build();
+        }catch(IllegalArgumentException e) {
+                return Response.status(Response.Status.NOT_FOUND).entity("Kunde nicht gefunden").build();
+        }
     }
 
     @GET
