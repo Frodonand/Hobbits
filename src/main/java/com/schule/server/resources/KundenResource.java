@@ -1,6 +1,9 @@
 package com.schule.server.resources;
 
+import java.util.Optional;
 import java.util.UUID;
+
+import org.glassfish.jersey.internal.guava.ExecutionError;
 
 import com.schule.server.data.Kunde;
 import com.schule.server.model.KundenModel;
@@ -30,7 +33,20 @@ public class KundenResource {
         }catch(IllegalArgumentException e) {
                 return Response.status(Response.Status.NOT_FOUND).entity("ich bin toll").build();
         }
+    }
 
+    @Path("/{id}")
+    @GET
+    @Produces({MediaType.APPLICATION_JSON,MediaType.TEXT_PLAIN})
+    public Response getCustomerById(@PathParam("id") String id) {
+        try{
+            UUID uuid = UUID.fromString(id);
+            Optional<Kunde> kunde = kundenModel.getData().stream().filter(e->e.getId().equals(uuid)).findFirst();
+            if(kunde.isPresent()){
+            return Response.status(Response.Status.OK).entity(kunde.get()).build();
+            }
+        }catch(ExecutionError e) {}
+        return Response.status(Response.Status.NOT_FOUND).entity("Kunde nicht gefunden").build();
     }
 
     @GET
