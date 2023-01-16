@@ -322,7 +322,7 @@ class ServerTest {
 	@Test
 	@DisplayName("Löschen eines nicht existierenden Kunden führt zu Not-Found")
 	void t18_deleteKundeFailsForNonExisitingKunde() {
-		Response re = target.path(endpointKunden.concat("/null")).request().accept(MediaType.APPLICATION_JSON).delete();
+		Response re = target.path(endpointKunden.concat("/null")).request().accept(MediaType.TEXT_PLAIN).delete();
 		assertEquals(Response.Status.NOT_FOUND.getStatusCode(), re.getStatus());
 		assertFalse(re.readEntity(String.class).isBlank());
 	}

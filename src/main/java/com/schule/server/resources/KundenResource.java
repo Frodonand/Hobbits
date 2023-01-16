@@ -22,14 +22,17 @@ public class KundenResource {
 
     @Path("/{id}")
     @DELETE
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteCustomer(@PathParam("id") UUID id) {
-        try {
-            kundenListe.removeIf(k -> k.getId() == id);
+    @Produces({MediaType.APPLICATION_JSON,MediaType.TEXT_PLAIN})
+    public Response deleteCustomer(@PathParam("id") String id) {
+        System.out.println(id);
+        try{
+            UUID uuid = UUID.fromString(id);
+            kundenListe.removeIf(k -> k.getId().equals(uuid));
             return Response.status(Response.Status.OK).build();
-        } catch (NotFoundException e) {
-            return Response.status(Response.Status.NOT_FOUND).entity(kundenListe).build();
+        }catch(IllegalArgumentException e) {
+                return Response.status(Response.Status.NOT_FOUND).entity("ich bin toll").build();
         }
+
     }
 
     @GET
