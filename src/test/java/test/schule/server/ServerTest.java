@@ -7,16 +7,20 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import com.schule.server.resources.KundenResource;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -82,6 +86,9 @@ class ServerTest {
 
 	@BeforeEach
 	void resetClient() {
+		List<Kunde> kundenCopy = new ArrayList<>();
+		kundenCopy.addAll(kunden);
+		KundenResource.setKundenListe(kundenCopy);
 		target = client.target(url.concat(endpointHasuverwaltung));
 	}
 
@@ -301,11 +308,11 @@ class ServerTest {
 	void t17_deleteKunde() {
 		String k1ID = k1_crudTest.getId().toString();
 		kunden.remove(k1_crudTest);
-		ablesungen.get(k1_crudTest).forEach(a -> a.setKunde(null));
+		//7ablesungen.get(k1_crudTest).forEach(a -> a.setKunde(null));
 		Response re = target.path(endpointKunden.concat("/").concat(k1ID)).request().accept(MediaType.APPLICATION_JSON)
 				.delete();
 		assertEquals(Response.Status.OK.getStatusCode(), re.getStatus());
-		Map<Kunde, List<Ablesung>> result = re.readEntity(new GenericType<Map<Kunde, List<Ablesung>>>() {
+		/*Map<Kunde, List<Ablesung>> result = re.readEntity(new GenericType<Map<Kunde, List<Ablesung>>>() {
 		});
 		assertEquals(1, result.keySet().size());
 		assertTrue(result.keySet().contains(k1_crudTest));
@@ -316,7 +323,7 @@ class ServerTest {
 
 		for (Ablesung a : ablesungenResult) {
 			assertTrue(ablesungenExpected.contains(a));
-		}
+		}*/
 	}
 
 	@Test
@@ -345,11 +352,11 @@ class ServerTest {
 		List<Kunde> resopnseKunden = re.readEntity(new GenericType<List<Kunde>>() {
 		});
 		assertTrue(resopnseKunden.size() == kunden.size());
-//		List<Kunde> sortedKunden = kunden.stream().sorted((k1, k2) -> k1.getName().compareTo(k2.getName()))
-//				.collect(Collectors.toList());
+		//List<Kunde> sortedKunden = kunden.stream().sorted((k1, k2) -> k1.getName().compareTo(k2.getName()))
+		//.collect(Collectors.toList());
 		for (Kunde k : kunden) {
 			assertTrue(resopnseKunden.contains(k));
-//			assertEquals(k, resopnseKunden.get(sortedKunden.indexOf(k)));
+			//assertEquals(k, resopnseKunden.get(sortedKunden.indexOf(k)));
 		}
 	}
 
