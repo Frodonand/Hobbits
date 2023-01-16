@@ -20,7 +20,7 @@ import jakarta.ws.rs.core.Response;
 public class KundenResource {
     private static List<Kunde> kundenListe = new ArrayList<Kunde>();
 
-    @Path("kunden/{id}")
+    @Path("/{id}")
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteCustomer(@PathParam("id") UUID id) {
@@ -32,7 +32,6 @@ public class KundenResource {
         }
     }
 
-    @Path("")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getKundendaten(){
