@@ -1,5 +1,6 @@
 package com.schule.server.data;
 
+import java.util.Objects;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,10 +14,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@JsonTypeInfo(
-  include = JsonTypeInfo.As.WRAPPER_OBJECT,
-  use = JsonTypeInfo.Id.NAME
-)
 @JsonTypeName(value = "kunde")
 public class Kunde {
     @JsonProperty
@@ -32,5 +29,16 @@ public class Kunde {
         this.vorname = vorname;
     }
 
-    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Kunde kunde = (Kunde) o;
+        return Objects.equals(id, kunde.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }
