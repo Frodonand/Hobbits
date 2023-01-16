@@ -7,14 +7,15 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import com.schule.server.resources.KundenResource;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +34,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import com.schule.server.data.Ablesung;
 import com.schule.server.data.Kunde;
+import com.schule.server.model.KundenModel;
 import com.schule.server.Server;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -80,7 +82,10 @@ class ServerTest {
 
 	@BeforeEach
 	void resetClient() {
-		KundenResource.setKundenListe(kunden);
+		List<Kunde> kundenCopy = new ArrayList<>();
+		kundenCopy.addAll(kunden);
+		KundenModel kModel = KundenModel.getInstance();
+		kModel.setData(kundenCopy);
 		target = client.target(url.concat(endpointHasuverwaltung));
 	}
 
@@ -298,10 +303,9 @@ class ServerTest {
 	@Test
 	@DisplayName("Ein bestehender Kunde kann erfolgreich gelöscht werden")
 	void t17_deleteKunde() {
-		kunden.add(k1_crudTest);
 		String k1ID = k1_crudTest.getId().toString();
 		kunden.remove(k1_crudTest);
-		// ablesungen.get(k1_crudTest).forEach(a -> a.setKunde(null));
+		//7ablesungen.get(k1_crudTest).forEach(a -> a.setKunde(null));
 		Response re = target.path(endpointKunden.concat("/").concat(k1ID)).request().accept(MediaType.APPLICATION_JSON)
 				.delete();
 		assertEquals(Response.Status.OK.getStatusCode(), re.getStatus());
@@ -316,13 +320,13 @@ class ServerTest {
 
 		for (Ablesung a : ablesungenResult) {
 			assertTrue(ablesungenExpected.contains(a));
-		} */
+		}*/
 	}
 
 	@Test
 	@DisplayName("Löschen eines nicht existierenden Kunden führt zu Not-Found")
 	void t18_deleteKundeFailsForNonExisitingKunde() {
-		Response re = target.path(endpointKunden.concat("/null")).request().accept(MediaType.TEXT_PLAIN).delete();
+		Response re = target.path(endpointKunden.concat("/null")).request().accept(MediaType.APPLICATION_JSON).delete();
 		assertEquals(Response.Status.NOT_FOUND.getStatusCode(), re.getStatus());
 		assertFalse(re.readEntity(String.class).isBlank());
 	}
