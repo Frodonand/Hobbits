@@ -13,9 +13,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import com.schule.server.model.AblesungsModel;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +36,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import com.schule.server.data.Ablesung;
 import com.schule.server.data.Kunde;
+import com.schule.server.model.AblesungsModel;
 import com.schule.server.model.KundenModel;
 import com.schule.server.Server;
 
@@ -47,7 +50,7 @@ class ServerTest {
 	private static final String endpointHasuverwaltung = "";
 	private static final String endpointKunden = "kunden";
 	private static final String endpointAblesungen = "ablesungen";
-	private static final String endpointAblesungClientStart = "ablesungenVorZweiJahrenHeute";
+	private static final String endpointAblesungClientStart = "ablesungen/vorZweiJahrenHeute";
 
 	private static final Kunde k1_crudTest = new Kunde("C", "c");
 	private static final Kunde k2_RangeTest = new Kunde("A", "a");
@@ -65,6 +68,7 @@ class ServerTest {
 	@BeforeAll
 	static void setUp() {
 		setUpKundenList();
+		setUpForRangeTest();
 		Server.startServer(url, false);
 	}
 
@@ -87,6 +91,16 @@ class ServerTest {
 		KundenModel kModel = KundenModel.getInstance();
 		kModel.setData(kundenCopy);
 		target = client.target(url.concat(endpointHasuverwaltung));
+
+		AblesungsModel aModel = AblesungsModel.getInstance();
+		HashMap<UUID,List<Ablesung>> map = new HashMap<>();
+		setUpForRangeTest();
+		for(Kunde k : ablesungen.keySet()){
+			List<Ablesung> ablesungList = new ArrayList<>();
+			ablesungList.addAll(ablesungen.get(k));
+			map.put(k.getId(), ablesungList);
+		}
+		aModel.setAblesungsMap(map);
 	}
 
 	@Test
@@ -107,7 +121,7 @@ class ServerTest {
 				.post(Entity.entity(k, MediaType.APPLICATION_JSON));
 	}
 
-	private void setUpForRangeTest() {
+	private static void setUpForRangeTest() {
 		ablesungen = new HashMap<>();
 		for (Kunde k : kunden) {
 			ablesungen.put(k, new ArrayList<>());
@@ -271,6 +285,7 @@ class ServerTest {
 	void t14_deleteAblesung() {
 		ablesungen.get(k1_crudTest).remove(ablesung_crudTest);
 		String aid = ablesung_crudTest.getId().toString();
+		System.out.println(endpointAblesungen.concat("/").concat(aid));
 		Response re = target.path(endpointAblesungen.concat("/").concat(aid)).request()
 				.accept(MediaType.APPLICATION_JSON).delete();
 		assertEquals(Response.Status.OK.getStatusCode(), re.getStatus());
@@ -291,6 +306,7 @@ class ServerTest {
 	@DisplayName("Alle entsprechenden Ablesungen für den Start des Clients können vom Server empfangen werden")
 	void t16_getAblesungenForClientStart() {
 		Response re = target.path(endpointAblesungClientStart).request().accept(MediaType.APPLICATION_JSON).get();
+		System.out.println(re);
 		List<Ablesung> ablesungenResult = re.readEntity(new GenericType<List<Ablesung>>() {
 		});
 		for (List<Ablesung> l : ablesungen.values()) {

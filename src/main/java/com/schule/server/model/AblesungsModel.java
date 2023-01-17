@@ -10,9 +10,7 @@ import com.schule.server.data.Kunde;
 
 public class AblesungsModel {
     private HashMap<UUID,List<Ablesung>> ablesungsMap = new HashMap<UUID, List<Ablesung>>();
-    
     private static AblesungsModel instance;
-    
     private AblesungsModel(){
     }
     
