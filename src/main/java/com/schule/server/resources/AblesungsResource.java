@@ -100,4 +100,22 @@ public class AblesungsResource {
         return Response.status(Response.Status.NOT_FOUND).entity("Keine Ablesung gefunden").build();
     }
 
+
+    @Path("/{id}")
+    @GET
+    @Produces({MediaType.APPLICATION_JSON,MediaType.TEXT_PLAIN})
+    public Response getAblsungById(@PathParam("id") String id) {
+        try{
+            UUID uuid = UUID.fromString(id);
+            Collection<List<Ablesung>> list = ablesungsModel.getAblesungsMap().values();
+            Optional<Ablesung> flat = list.stream()
+                    .flatMap(List<Ablesung>::stream)
+                    .filter(e->e.getId().equals(uuid))
+                    .findFirst();
+            if(flat.isPresent()){
+            return Response.status(Response.Status.OK).entity(flat.get()).build();
+            }
+        }catch(IllegalArgumentException e) {}
+        return Response.status(Response.Status.NOT_FOUND).entity("Kunde nicht gefunden").build();
+    }
 }
