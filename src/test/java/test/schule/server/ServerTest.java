@@ -305,14 +305,6 @@ class ServerTest {
 	@Test
 	@DisplayName("Alle entsprechenden Ablesungen für den Start des Clients können vom Server empfangen werden")
 	void t16_getAblesungenForClientStart() {
-		AblesungsModel aModel = AblesungsModel.getInstance();
-		HashMap<UUID,List<Ablesung>> map = new HashMap<>();
-		setUpForRangeTest();
-		for(Kunde k : ablesungen.keySet()){
-			map.put(k.getId(), ablesungen.get(k));
-		}
-		aModel.setAblesungsMap(map);
-
 		Response re = target.path(endpointAblesungClientStart).request().accept(MediaType.APPLICATION_JSON).get();
 		System.out.println(re);
 		List<Ablesung> ablesungenResult = re.readEntity(new GenericType<List<Ablesung>>() {
