@@ -67,6 +67,7 @@ class ServerTest {
 	@BeforeAll
 	static void setUp() {
 		setUpKundenList();
+		setUpForRangeTest();
 		Server.startServer(url, false);
 	}
 
@@ -89,6 +90,16 @@ class ServerTest {
 		KundenModel kModel = KundenModel.getInstance();
 		kModel.setData(kundenCopy);
 		target = client.target(url.concat(endpointHasuverwaltung));
+
+		AblesungsModel aModel = AblesungsModel.getInstance();
+		HashMap<UUID,List<Ablesung>> map = new HashMap<>();
+		setUpForRangeTest();
+		for(Kunde k : ablesungen.keySet()){
+			List<Ablesung> ablesungList = new ArrayList<>();
+			ablesungList.addAll(ablesungen.get(k));
+			map.put(k.getId(), ablesungList);
+		}
+		aModel.setAblesungsMap(map);
 	}
 
 	@Test
@@ -109,7 +120,7 @@ class ServerTest {
 				.post(Entity.entity(k, MediaType.APPLICATION_JSON));
 	}
 
-	private void setUpForRangeTest() {
+	private static void setUpForRangeTest() {
 		ablesungen = new HashMap<>();
 		for (Kunde k : kunden) {
 			ablesungen.put(k, new ArrayList<>());
@@ -273,6 +284,7 @@ class ServerTest {
 	void t14_deleteAblesung() {
 		ablesungen.get(k1_crudTest).remove(ablesung_crudTest);
 		String aid = ablesung_crudTest.getId().toString();
+		System.out.println(endpointAblesungen.concat("/").concat(aid));
 		Response re = target.path(endpointAblesungen.concat("/").concat(aid)).request()
 				.accept(MediaType.APPLICATION_JSON).delete();
 		assertEquals(Response.Status.OK.getStatusCode(), re.getStatus());
