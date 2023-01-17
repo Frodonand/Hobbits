@@ -37,6 +37,7 @@ public class Ablesung {
 
     public Ablesung(String zaehlernummer, LocalDate datum, Kunde kunde, String kommentar, boolean neuEingebaut,
     Number zaehlerstand) {
+        id = UUID.randomUUID();
         this.zaehlernummer = zaehlernummer;
         this.datum = datum;
         this.kunde = kunde;
