@@ -47,7 +47,6 @@ class ServerTest {
 	private static final Client client = ClientBuilder.newClient();
 	private WebTarget target = client.target(url);
 
-	private static final String endpointHasuverwaltung = "";
 	private static final String endpointKunden = "kunden";
 	private static final String endpointAblesungen = "ablesungen";
 	private static final String endpointAblesungClientStart = "ablesungen/vorZweiJahrenHeute";
@@ -86,11 +85,11 @@ class ServerTest {
 
 	@BeforeEach
 	void resetClient() {
+		setUpKundenList();
 		List<Kunde> kundenCopy = new ArrayList<>();
 		kundenCopy.addAll(kunden);
 		KundenModel kModel = KundenModel.getInstance();
 		kModel.setData(kundenCopy);
-		target = client.target(url.concat(endpointHasuverwaltung));
 
 		AblesungsModel aModel = AblesungsModel.getInstance();
 		HashMap<UUID,List<Ablesung>> map = new HashMap<>();

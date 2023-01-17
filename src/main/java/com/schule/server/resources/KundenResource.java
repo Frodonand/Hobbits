@@ -31,7 +31,7 @@ public class KundenResource {
             kundenModel.getData().removeIf(k -> k.getId().equals(uuid));
             return Response.status(Response.Status.OK).build();
         }catch(IllegalArgumentException e) {
-                return Response.status(Response.Status.NOT_FOUND).entity("ich bin toll").build();
+            return Response.status(Response.Status.NOT_FOUND).entity("ich bin toll").build();
         }
     }
 
@@ -45,7 +45,7 @@ public class KundenResource {
             if(kunde.isPresent()){
             return Response.status(Response.Status.OK).entity(kunde.get()).build();
             }
-        }catch(ExecutionError e) {}
+        }catch(IllegalArgumentException e) {}
         return Response.status(Response.Status.NOT_FOUND).entity("Kunde nicht gefunden").build();
     }
 
