@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,7 @@ class ServerTest {
 	private static final Kunde k3_RangeTest = new Kunde("B", "b");
 
 	private static final int lastYear = LocalDate.now().getYear() - 1;
-	private static final Ablesung ablesung_crudTest = new Ablesung("1", LocalDate.of(lastYear, 8, 25), k2_RangeTest, "test", false,
+	private static final Ablesung ablesung_crudTest = new Ablesung("1", LocalDate.of(lastYear, 8, 25), k1_crudTest, "test", false,
 			100);
 	private static final Ablesung ablesung_kundeDeletedDuringTest = new Ablesung("1", LocalDate.of(lastYear, 12, 1), k1_crudTest, "test", false, 0);
 
@@ -93,12 +94,22 @@ class ServerTest {
 		kModel.setData(kundenCopy);
 
 		AblesungsModel aModel = AblesungsModel.getInstance();
+
 		setUpForRangeTest();
+
 		List<Ablesung> listAblesung = ablesungen.values().stream()
 			.flatMap(List<Ablesung>::stream)
 			.collect(Collectors.toList());
+		List<Ablesung> listAblesungCopy = new ArrayList<>();
+		for(Ablesung a : listAblesung){
+			listAblesungCopy.add(new Ablesung(a.getId(),
+			a.getZaehlernummer(), a.getDatum(), a.getKunde(),
+			a.getKommentar(), a.isNeuEingebaut(), a.getZaehlerstand()));
+		}
 		
-		aModel.setAblesungsList(listAblesung);
+		//Collections.copy(listAblesung, listAblesungCopy);
+
+		aModel.setAblesungsList(listAblesungCopy);
 	}
 
 	@Test
@@ -283,7 +294,6 @@ class ServerTest {
 	void t14_deleteAblesung() {
 		ablesungen.get(k1_crudTest).remove(ablesung_crudTest);
 		String aid = ablesung_crudTest.getId().toString();
-		System.out.println(endpointAblesungen.concat("/").concat(aid));
 		Response re = target.path(endpointAblesungen.concat("/").concat(aid)).request()
 				.accept(MediaType.APPLICATION_JSON).delete();
 		assertEquals(Response.Status.OK.getStatusCode(), re.getStatus());
@@ -304,7 +314,6 @@ class ServerTest {
 	@DisplayName("Alle entsprechenden Ablesungen für den Start des Clients können vom Server empfangen werden")
 	void t16_getAblesungenForClientStart() {
 		Response re = target.path(endpointAblesungClientStart).request().accept(MediaType.APPLICATION_JSON).get();
-		System.out.println(re);
 		List<Ablesung> ablesungenResult = re.readEntity(new GenericType<List<Ablesung>>() {
 		});
 		for (List<Ablesung> l : ablesungen.values()) {
@@ -319,17 +328,22 @@ class ServerTest {
 	void t17_deleteKunde() {
 		String k1ID = k1_crudTest.getId().toString();
 		kunden.remove(k1_crudTest);
+		List<Ablesung> ablesungenExpected = ablesungen.get(k1_crudTest);
+		System.out.println(ablesungenExpected);
+
 		ablesungen.get(k1_crudTest).forEach(a -> a.setKunde(null));
 		Response re = target.path(endpointKunden.concat("/").concat(k1ID)).request().accept(MediaType.APPLICATION_JSON)
 				.delete();
+		
 		assertEquals(Response.Status.OK.getStatusCode(), re.getStatus());
-		Map<Kunde, List<Ablesung>> result = re.readEntity(new GenericType<Map<Kunde, List<Ablesung>>>() {
+		Map<UUID, List<Ablesung>> result = re.readEntity(new GenericType<Map<UUID, List<Ablesung>>>() {
 		});
 		assertEquals(1, result.keySet().size());
-		assertTrue(result.keySet().contains(k1_crudTest));
+		assertTrue(result.keySet().contains(k1_crudTest.getId()));
 
-		List<Ablesung> ablesungenExpected = ablesungen.get(k1_crudTest);
-		List<Ablesung> ablesungenResult = result.get(k1_crudTest);
+		//List<Ablesung> ablesungenExpected = ablesungen.get(k1_crudTest);
+		List<Ablesung> ablesungenResult = result.get(k1_crudTest.getId());
+		
 		assertEquals(ablesungenExpected.size(), ablesungenResult.size());
 
 		for (Ablesung a : ablesungenResult) {
@@ -393,7 +407,6 @@ class ServerTest {
 		String kid = k2_RangeTest.getId().toString();
 		String beginnString = beginn.format(dateFormatter);
 		String endeString = ende.format(dateFormatter);
-		System.out.println(kid + " " +beginnString + " " + endeString);
 		Response re = target.path(endpointAblesungen).queryParam("kunde", kid).queryParam("beginn", beginnString)
 				.queryParam("ende", endeString).request().accept(MediaType.APPLICATION_JSON).get();
 		assertEquals(Response.Status.OK.getStatusCode(), re.getStatus());
