@@ -1,9 +1,7 @@
 package com.schule.server;
 
 import java.net.URI;
-import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import com.schule.server.data.Ablesung;
 import com.schule.server.data.Kunde;
@@ -42,14 +40,11 @@ public class Server {
                     ablesungenMap.put(k.getId(),new ArrayList<Ablesung>());
                 }
                 kundenModel.setData(alleKunden);
+
                 List<Ablesung> alleAblesungen = ablesungenPersistance.load();
-                for(Ablesung a : alleAblesungen){
-                    ablesungenMap.get(a.getKunde().getId()).add(a);
-                    }
-                ablesungModel.setAblesungsMap(ablesungenMap);
+                ablesungModel.setAblesungsList(alleAblesungen);
                 }
             }
-        System.out.println(ablesungModel.getAblesungsMap());
             final ResourceConfig rc = new ResourceConfig().packages(PACK);
             server = JdkHttpServerFactory.createHttpServer(
             URI.create(url),
@@ -60,11 +55,7 @@ public class Server {
     public static void stopServer(boolean saveToFile){
         if(saveToFile){
             kundenPersistance.save(kundenModel.getData());
-            List<Ablesung> ablesungenToSave = new ArrayList<>();
-            Collection<List<Ablesung>> ablesungen = ablesungModel.getAblesungsMap().values();
-            for (List<Ablesung> list : ablesungen){
-                ablesungenToSave.addAll(list);
-            }
+            List<Ablesung> ablesungenToSave = ablesungModel.getAblesungsList();
             ablesungenPersistance.save(ablesungenToSave);
         }
         if(server != null){
