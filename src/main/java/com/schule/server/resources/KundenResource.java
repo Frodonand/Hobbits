@@ -7,8 +7,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.glassfish.jersey.internal.guava.ExecutionError;
-
 import com.schule.server.data.Ablesung;
 import com.schule.server.data.Kunde;
 import com.schule.server.model.AblesungsModel;

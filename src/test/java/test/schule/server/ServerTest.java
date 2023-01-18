@@ -11,7 +11,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +37,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import com.schule.server.data.Ablesung;
 import com.schule.server.data.Kunde;
-import com.schule.server.model.AblesungsModel;
 import com.schule.server.model.KundenModel;
 import com.schule.server.Server;
 
@@ -328,8 +326,6 @@ class ServerTest {
 	void t17_deleteKunde() {
 		String k1ID = k1_crudTest.getId().toString();
 		kunden.remove(k1_crudTest);
-		List<Ablesung> ablesungenExpected = ablesungen.get(k1_crudTest);
-		System.out.println(ablesungenExpected);
 
 		ablesungen.get(k1_crudTest).forEach(a -> a.setKunde(null));
 		Response re = target.path(endpointKunden.concat("/").concat(k1ID)).request().accept(MediaType.APPLICATION_JSON)
@@ -341,7 +337,7 @@ class ServerTest {
 		assertEquals(1, result.keySet().size());
 		assertTrue(result.keySet().contains(k1_crudTest.getId()));
 
-		//List<Ablesung> ablesungenExpected = ablesungen.get(k1_crudTest);
+		List<Ablesung> ablesungenExpected = ablesungen.get(k1_crudTest);
 		List<Ablesung> ablesungenResult = result.get(k1_crudTest.getId());
 		
 		assertEquals(ablesungenExpected.size(), ablesungenResult.size());

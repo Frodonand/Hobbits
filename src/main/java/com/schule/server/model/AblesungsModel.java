@@ -1,9 +1,7 @@
 package com.schule.server.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 import com.schule.server.data.Ablesung;
 
