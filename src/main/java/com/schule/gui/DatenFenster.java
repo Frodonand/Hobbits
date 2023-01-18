@@ -1,6 +1,7 @@
 package com.schule.gui;
 
-import com.schule.data.Zaehlerdatum;
+import com.schule.data.Ablesung;
+import com.schule.data.Ablesung;
 import com.schule.model.ZaehlerDatenModel;
 
 import javax.swing.JButton;
@@ -17,6 +18,7 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyAdapter;
 import java.text.DateFormat;
+import java.time.LocalDate;
 import java.awt.Container;
 import java.util.Date;
 import java.util.List;
@@ -26,10 +28,10 @@ public class DatenFenster extends JFrame{
 
     private JTable datenanzeigeFeld;
     private JScrollPane sp;
-    private List<Zaehlerdatum> dataList;
+    private List<Ablesung> dataList;
     private ZaehlerDatenModel persistance;
 
-    public DatenFenster(List<Zaehlerdatum> dataList){
+    public DatenFenster(List<Ablesung> dataList){
 
         persistance = ZaehlerDatenModel.getInstance();
         this.dataList = dataList;
@@ -83,26 +85,24 @@ public class DatenFenster extends JFrame{
         DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.DEFAULT, locale);
     
         for (int i = 0; i<dataList.size();i++) {
-            Zaehlerdatum curr = dataList.get(i);
-            Object[] o = new Object[7];
-            o[0]= curr.getKundennummer();
-            o[1]= curr.getZaehlerart();
-            o[2]= curr.getZaehlernummer();
-            o[4]= curr.isEingebaut();
-            o[5]= curr.getZaehlerstand();
-            o[6]= curr.getKommentar();
-            Date date = curr.getDatum();
+            Ablesung curr = dataList.get(i);
+            Object[] o = new Object[6];
+            o[0]= curr.getKunde().getId();
+            o[1]= curr.getZaehlernummer();
+            o[3]= curr.isNeuEingebaut();
+            o[4]= curr.getZaehlerstand();
+            o[5]= curr.getKommentar();
+            LocalDate date = curr.getDatum();
             if(date == null){
-                o[3]= null;
+                o[2]= null;
             }else{
-                o[3]= dateFormat.format(date);
+                o[2]= dateFormat.format(date);
             }
             allData[i]=o;
         }
     
         String[] headers = {
            "Kundennummer",
-            "Zählerart",
             "Zählernummer",
             "Datum",
             "Neu eingebaut",
@@ -113,12 +113,11 @@ public class DatenFenster extends JFrame{
     }
 
     private void removeEntry(int index){
-        Zaehlerdatum curr = persistance.getEntry(index);
-        String s = "Kundennummer: " +  curr.getKundennummer() + "\n";
-        s += "Zählerart: "+ curr.getZaehlerart() + "\n";
+        Ablesung curr = persistance.getEntry(index);
+        String s = "Kundennummer: " +  curr.getKunde().getId() + "\n";
         s += "Zählernummer: " +  curr.getZaehlernummer() + "\n";
         s += "Datum: " +  curr.getDatum() + "\n";
-        s += "Neu eingebaut: " +  curr.isEingebaut() + "\n";
+        s += "Neu eingebaut: " +  curr.isNeuEingebaut() + "\n";
         s += "Zählerstand: " +  curr.getZaehlerstand() + "\n";
         s += "Kommentar: " +  curr.getKommentar() + "\n";
 

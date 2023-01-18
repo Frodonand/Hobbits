@@ -1,11 +1,14 @@
 package com.schule.gui;
 
+import com.schule.data.Ablesung;
 import com.schule.data.DateLabelFormatter;
-import com.schule.data.Zaehlerdatum;
+import com.schule.data.Kunde;
 import com.schule.model.ZaehlerDatenModel;
 import com.schule.services.PlausibilitaetsPruefung;
 
 import java.awt.*;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Properties;
 import javax.swing.*;
@@ -25,10 +28,10 @@ public class ZaehlerAenderungsFormular extends JFrame {
   private final JDatePanelImpl datePanel;
 
   private final ZaehlerDatenModel datenModel;
-  private final Zaehlerdatum data;
+  private final Ablesung data;
   private final DatenFenster parent;
 
-  public ZaehlerAenderungsFormular(Zaehlerdatum data,DatenFenster parent) {
+  public ZaehlerAenderungsFormular(Ablesung data,DatenFenster parent) {
     super("Zählerdaten erfassen");
     GridLayout gridLayout = new GridLayout(7, 2);
 
@@ -61,12 +64,11 @@ public class ZaehlerAenderungsFormular extends JFrame {
     JLabel kommentar = new JLabel("Kommentar");
 
 
-     kundenummerText = new JTextField(String.valueOf(data.getKundennummer()));
+     kundenummerText = new JTextField(String.valueOf(data.getKunde().getId()));
      zaehlerartDrop = new JComboBox<String>(zaehlerListe);
-     zaehlerartDrop.setSelectedItem(data.getZaehlerart());
      zaehlernummerText = new JTextField(data.getZaehlernummer());
      eingebautCheck = new JCheckBox();
-     eingebautCheck.setSelected(data.isEingebaut());
+     eingebautCheck.setSelected(data.isNeuEingebaut());
      zaehlerstandText = new JTextField(String.valueOf(data.getZaehlerstand()));
      kommentarText = new JTextField(data.getKommentar());
 
@@ -101,7 +103,10 @@ public class ZaehlerAenderungsFormular extends JFrame {
     
     String zaehlerart = String.valueOf(zaehlerartDrop.getSelectedItem());
     String zaehlernummer = zaehlernummerText.getText();
-    Date datum = (Date) datePicker.getModel().getValue();
+    Date date = (Date) datePicker.getModel().getValue();
+    LocalDate datum = date.toInstant()
+    .atZone(ZoneId.systemDefault())
+    .toLocalDate();
     boolean eingebaut = eingebautCheck.isSelected();
     String kommentar = kommentarText.getText();
     
@@ -112,14 +117,13 @@ public class ZaehlerAenderungsFormular extends JFrame {
       zaehlerstand = Integer.parseInt(zaehlerstandText.getText());
   } catch (Exception e) {}
 
-    Zaehlerdatum newZaehlerdatum = new Zaehlerdatum(
-      kundennummer,
-      zaehlerart,
+    Ablesung newZaehlerdatum = new Ablesung(
       zaehlernummer,
       datum,
+      new Kunde(),
+      kommentar,
       eingebaut,
-      zaehlerstand,
-      kommentar
+      Integer.valueOf(zaehlerstand)
     );
     int index = datenModel.getData().indexOf(data);
     String s = PlausibilitaetsPruefung.machePlausabilitaetspruefung(kundenummerText.getText(),zaehlernummer,

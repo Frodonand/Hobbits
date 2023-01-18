@@ -1,12 +1,15 @@
 package com.schule.gui;
 
 import com.schule.data.DateLabelFormatter;
-import com.schule.data.Zaehlerdatum;
+import com.schule.data.Kunde;
+import com.schule.data.Ablesung;
 import com.schule.model.ZaehlerDatenModel;
 import com.schule.services.PlausibilitaetsPruefung;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -21,7 +24,7 @@ import org.jdatepicker.impl.UtilDateModel;
 
 public class ZaehlerEingabeFormular extends JFrame {
     private final String[] zaehlerListe = {"Strom", "Gas", "Heizung", "Wasser"};
-    private final List<Zaehlerdatum> zaehlerdaten;
+    private final List<Ablesung> zaehlerdaten;
     private final JTextField kundenummerText = new JTextField();
     private final JComboBox<String> zaehlerartDrop = new JComboBox<String>(zaehlerListe);
     private final JTextField zaehlernummerText = new JTextField();
@@ -128,7 +131,7 @@ public class ZaehlerEingabeFormular extends JFrame {
                 imageIcon);
     }
 
-    private void datenFensteranzeigen(List<Zaehlerdatum> zaehlerdaten) {
+    private void datenFensteranzeigen(List<Ablesung> zaehlerdaten) {
         new DatenFenster(zaehlerdaten);
     }
 
@@ -138,7 +141,10 @@ public class ZaehlerEingabeFormular extends JFrame {
         
         String zaehlerart = String.valueOf(zaehlerartDrop.getSelectedItem());
         String zaehlernummer = zaehlernummerText.getText();
-        Date datum = (Date) datePicker.getModel().getValue();
+        Date date = (Date) datePicker.getModel().getValue();
+        LocalDate datum = date.toInstant()
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate();
         boolean eingebaut = eingebautCheck.isSelected();
         String kommentar = kommentarText.getText();
 
@@ -152,20 +158,19 @@ public class ZaehlerEingabeFormular extends JFrame {
                 } catch (Exception e) {
                 }
 
-                Zaehlerdatum newZaehlerdatum = new Zaehlerdatum(
-                        kundennummer,
-                        zaehlerart,
-                        zaehlernummer,
-                        datum,
-                        eingebaut,
-                        zaehlerstand,
-                        kommentar
-                );
+                Ablesung newAblesung  = new Ablesung(
+                    zaehlernummer,
+                    datum,
+                    new Kunde(),
+                    kommentar,
+                    eingebaut,
+                    Integer.valueOf(zaehlerstand)
+                  );
                 String s = PlausibilitaetsPruefung.machePlausabilitaetspruefung(kundenummerText.getText(), zaehlernummer,
                         zaehlerstandText.getText(), eingebaut, datum);
                 boolean exists = false;
-                for (Zaehlerdatum curr : zaehlerdaten) {
-                    if (newZaehlerdatum.equals(curr)) {
+                for (Ablesung curr : zaehlerdaten) {
+                    if (newAblesung.equals(curr)) {
                         exists = true;
                     }
                 }
@@ -174,7 +179,7 @@ public class ZaehlerEingabeFormular extends JFrame {
                 } else if (!s.equals("")) {
                     showErrorWindow(s);
                 } else {
-                    zaehlerdaten.add(newZaehlerdatum);
+                    zaehlerdaten.add(newAblesung);
                 }
             }
 

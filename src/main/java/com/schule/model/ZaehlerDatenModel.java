@@ -2,19 +2,19 @@ package com.schule.model;
 
 import java.util.List;
 
-import com.schule.data.Zaehlerdatum;
+import com.schule.data.Ablesung;
 import com.schule.persistence.JSONPersistance;
 
 public class ZaehlerDatenModel {
     
 
-    private final JSONPersistance<Zaehlerdatum> persistance;
-    private List<Zaehlerdatum> data;
+    private final JSONPersistance<Ablesung> persistance;
+    private List<Ablesung> data;
     
     private static ZaehlerDatenModel instance;
     
     private ZaehlerDatenModel(){
-        persistance = new JSONPersistance<Zaehlerdatum>(Zaehlerdatum.class);
+        persistance = new JSONPersistance<Ablesung>(Ablesung.class);
         data = persistance.load();
         
     }
@@ -29,11 +29,11 @@ public class ZaehlerDatenModel {
         persistance.save(data);
     }
     
-    public List<Zaehlerdatum> getData() {
+    public List<Ablesung> getData() {
         return data;
     }
 
-    public void updateEntry(int index, Zaehlerdatum newZaehlerdatum) {
+    public void updateEntry(int index, Ablesung newZaehlerdatum) {
         data.remove(index);
         data.add(index, newZaehlerdatum);
     }
@@ -42,7 +42,7 @@ public class ZaehlerDatenModel {
         data.remove(index);
     }
 
-    public Zaehlerdatum getEntry(int index) {
+    public Ablesung getEntry(int index) {
         return data.get(index);
     }
 }

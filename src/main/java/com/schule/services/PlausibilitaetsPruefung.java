@@ -2,6 +2,7 @@ package com.schule.services;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
@@ -11,7 +12,7 @@ import javax.swing.JOptionPane;
 public class PlausibilitaetsPruefung {
     
     public static String machePlausabilitaetspruefung(String kundenummerText, String zaehlernummerText,
-    String zaehlerstandText,boolean eingebautCheck, Date date)  {
+    String zaehlerstandText,boolean eingebautCheck, LocalDate date)  {
         String s ="";
         try{
             Integer.parseInt(kundenummerText);
@@ -60,12 +61,11 @@ public class PlausibilitaetsPruefung {
       return true;
     }
     
-    @SuppressWarnings("deprecation")
-    private static boolean checkIfDateIsInvalid(Date date) {
+    private static boolean checkIfDateIsInvalid(LocalDate date) {
       boolean isInvalidDate = false;
       SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
-      String enteredDay = date.getDay() + "";
-      String enteredMonth = date.getMonth() + 1 + "/";
+      String enteredDay = date.getDayOfMonth() + "";
+      String enteredMonth = date.getMonthValue() + 1 + "/";
       String enteredYear = date.getYear() + "/";
       try{
       String enteredDateStringAsString = enteredYear + enteredMonth + enteredDay;
