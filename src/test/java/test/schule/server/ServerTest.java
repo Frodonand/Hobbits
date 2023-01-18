@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -36,7 +37,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import com.schule.server.data.Ablesung;
 import com.schule.server.data.Kunde;
-import com.schule.server.model.AblesungsModel;
 import com.schule.server.model.KundenModel;
 import com.schule.server.Server;
 
@@ -56,7 +56,7 @@ class ServerTest {
 	private static final Kunde k3_RangeTest = new Kunde("B", "b");
 
 	private static final int lastYear = LocalDate.now().getYear() - 1;
-	private static final Ablesung ablesung_crudTest = new Ablesung("1", LocalDate.of(lastYear, 8, 25), k2_RangeTest, "test", false,
+	private static final Ablesung ablesung_crudTest = new Ablesung("1", LocalDate.of(lastYear, 8, 25), k1_crudTest, "test", false,
 			100);
 	private static final Ablesung ablesung_kundeDeletedDuringTest = new Ablesung("1", LocalDate.of(lastYear, 12, 1), k1_crudTest, "test", false, 0);
 
@@ -92,14 +92,22 @@ class ServerTest {
 		kModel.setData(kundenCopy);
 
 		AblesungsModel aModel = AblesungsModel.getInstance();
-		HashMap<UUID,List<Ablesung>> map = new HashMap<>();
+
 		setUpForRangeTest();
-		for(Kunde k : ablesungen.keySet()){
-			List<Ablesung> ablesungList = new ArrayList<>();
-			ablesungList.addAll(ablesungen.get(k));
-			map.put(k.getId(), ablesungList);
+
+		List<Ablesung> listAblesung = ablesungen.values().stream()
+			.flatMap(List<Ablesung>::stream)
+			.collect(Collectors.toList());
+		List<Ablesung> listAblesungCopy = new ArrayList<>();
+		for(Ablesung a : listAblesung){
+			listAblesungCopy.add(new Ablesung(a.getId(),
+			a.getZaehlernummer(), a.getDatum(), a.getKunde(),
+			a.getKommentar(), a.isNeuEingebaut(), a.getZaehlerstand()));
 		}
-		aModel.setAblesungsMap(map);
+		
+		//Collections.copy(listAblesung, listAblesungCopy);
+
+		aModel.setAblesungsList(listAblesungCopy);
 	}
 
 	@Test
@@ -284,7 +292,6 @@ class ServerTest {
 	void t14_deleteAblesung() {
 		ablesungen.get(k1_crudTest).remove(ablesung_crudTest);
 		String aid = ablesung_crudTest.getId().toString();
-		System.out.println(endpointAblesungen.concat("/").concat(aid));
 		Response re = target.path(endpointAblesungen.concat("/").concat(aid)).request()
 				.accept(MediaType.APPLICATION_JSON).delete();
 		assertEquals(Response.Status.OK.getStatusCode(), re.getStatus());
@@ -305,7 +312,6 @@ class ServerTest {
 	@DisplayName("Alle entsprechenden Ablesungen für den Start des Clients können vom Server empfangen werden")
 	void t16_getAblesungenForClientStart() {
 		Response re = target.path(endpointAblesungClientStart).request().accept(MediaType.APPLICATION_JSON).get();
-		System.out.println(re);
 		List<Ablesung> ablesungenResult = re.readEntity(new GenericType<List<Ablesung>>() {
 		});
 		for (List<Ablesung> l : ablesungen.values()) {
@@ -320,22 +326,25 @@ class ServerTest {
 	void t17_deleteKunde() {
 		String k1ID = k1_crudTest.getId().toString();
 		kunden.remove(k1_crudTest);
-		//7ablesungen.get(k1_crudTest).forEach(a -> a.setKunde(null));
+
+		ablesungen.get(k1_crudTest).forEach(a -> a.setKunde(null));
 		Response re = target.path(endpointKunden.concat("/").concat(k1ID)).request().accept(MediaType.APPLICATION_JSON)
 				.delete();
+		
 		assertEquals(Response.Status.OK.getStatusCode(), re.getStatus());
-		/*Map<Kunde, List<Ablesung>> result = re.readEntity(new GenericType<Map<Kunde, List<Ablesung>>>() {
+		Map<UUID, List<Ablesung>> result = re.readEntity(new GenericType<Map<UUID, List<Ablesung>>>() {
 		});
 		assertEquals(1, result.keySet().size());
-		assertTrue(result.keySet().contains(k1_crudTest));
+		assertTrue(result.keySet().contains(k1_crudTest.getId()));
 
 		List<Ablesung> ablesungenExpected = ablesungen.get(k1_crudTest);
-		List<Ablesung> ablesungenResult = result.get(k1_crudTest);
+		List<Ablesung> ablesungenResult = result.get(k1_crudTest.getId());
+		
 		assertEquals(ablesungenExpected.size(), ablesungenResult.size());
 
 		for (Ablesung a : ablesungenResult) {
 			assertTrue(ablesungenExpected.contains(a));
-		}*/
+		}
 	}
 
 	@Test
@@ -386,8 +395,9 @@ class ServerTest {
 	@Test
 	@DisplayName("Alle Ablesungen zwischen zwei Datumsvorgaben können erfolgreich vom Server empfangen werden")
 	void t22_getEveryAblesungInRangeForSpecificKunde() {
-		LocalDate beginn = LocalDate.of(2021, 2, 1);
-		LocalDate ende = LocalDate.of(2021, 9, 1);
+		int jahr = LocalDate.now().getYear() - 1;
+		LocalDate beginn = LocalDate.of(jahr, 2, 1);
+		LocalDate ende = LocalDate.of(jahr, 9, 1);
 		List<Ablesung> filter = ablesungen.get(k2_RangeTest).stream()
 				.filter(x -> x.getDatum().isAfter(beginn) && x.getDatum().isBefore(ende)).collect(Collectors.toList());
 		String kid = k2_RangeTest.getId().toString();

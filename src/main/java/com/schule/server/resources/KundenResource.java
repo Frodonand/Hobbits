@@ -1,11 +1,15 @@
 package com.schule.server.resources;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-import org.glassfish.jersey.internal.guava.ExecutionError;
-
+import com.schule.server.data.Ablesung;
 import com.schule.server.data.Kunde;
+import com.schule.server.model.AblesungsModel;
 import com.schule.server.model.KundenModel;
 
 import jakarta.ws.rs.*;
@@ -20,19 +24,40 @@ import jakarta.ws.rs.Produces;
 @Path("kunden")
 public class KundenResource {
     private static KundenModel kundenModel = KundenModel.getInstance();
+    private static AblesungsModel ablesungsModel = AblesungsModel.getInstance();
+
 
     @Path("/{id}")
     @DELETE
     @Produces({MediaType.APPLICATION_JSON,MediaType.TEXT_PLAIN})
     public Response deleteCustomer(@PathParam("id") String id) {
-        System.out.println(id);
         try{
             UUID uuid = UUID.fromString(id);
-            kundenModel.getData().removeIf(k -> k.getId().equals(uuid));
-            return Response.status(Response.Status.OK).build();
+            Optional<Kunde> kundeOptional = kundenModel.getData().stream()
+                .filter(k -> k.getId()
+                .equals(uuid))
+                .findFirst();
+
+            if(kundeOptional.isPresent()){
+                Kunde kunde = kundeOptional.get();
+                List<Ablesung> kundenAblesung = ablesungsModel.getAblesungsList().stream()
+                    .filter(k -> k.getKunde()!=null && k.getKunde().getId().equals(uuid))
+                    .peek(e-> e.setKunde(null))
+                    .collect(Collectors.toList());
+        
+                kundenModel.getData().removeIf(k -> k.getId().equals(uuid));
+
+                Map<UUID,List<Ablesung>> result = new HashMap<>();
+                result.put(kunde.getId(), kundenAblesung);
+
+                return Response.status(Response.Status.OK).entity(result).build();
+            }
         }catch(IllegalArgumentException e) {
-            return Response.status(Response.Status.NOT_FOUND).entity("ich bin toll").build();
+            return Response.status(Response.Status.NOT_FOUND).entity("Kunde nicht gefunden").build();
+        }catch(Exception e){
+            e.printStackTrace();
         }
+        return Response.status(Response.Status.NOT_FOUND).entity("Kunde nicht gefunden").build();
     }
 
     @Path("/{id}")
@@ -76,7 +101,6 @@ public class KundenResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addCustomer(Kunde kunde){
-        System.out.println(kunde);
         if(kunde!=null){
             kunde.setId(UUID.randomUUID());
             kundenModel.getData().add(kunde);
