@@ -18,7 +18,6 @@ import org.jdatepicker.impl.UtilDateModel;
 
 public class ZaehlerAenderungsFormular extends JFrame {
   private final String[] zaehlerListe = { "Strom", "Gas", "Heizung", "Wasser" };
-  private final JTextField kundenummerText ;
   private final JComboBox<String> zaehlerartDrop;
   private final JTextField zaehlernummerText;
   private final JCheckBox eingebautCheck;
@@ -55,7 +54,6 @@ public class ZaehlerAenderungsFormular extends JFrame {
     grid.setLayout(gridLayout);
 
     //Generieren der Labels, Buttons und Textfields
-    JLabel kundenummer = new JLabel("Kundennummer");
     JLabel zaehlerart = new JLabel("Zählerart");
     JLabel zaehlernummer = new JLabel("Zählernummer");
     JLabel datum = new JLabel("Datum");
@@ -63,8 +61,6 @@ public class ZaehlerAenderungsFormular extends JFrame {
     JLabel zaehlerstand = new JLabel("Zählerstand");
     JLabel kommentar = new JLabel("Kommentar");
 
-
-     kundenummerText = new JTextField(String.valueOf(data.getKunde().getId()));
      zaehlerartDrop = new JComboBox<String>(zaehlerListe);
      zaehlernummerText = new JTextField(data.getZaehlernummer());
      eingebautCheck = new JCheckBox();
@@ -76,8 +72,6 @@ public class ZaehlerAenderungsFormular extends JFrame {
 
         //Hinzufügen der Components zum Grid
         con.add(grid, BorderLayout.CENTER);
-        grid.add(kundenummer);
-        grid.add(kundenummerText);
         grid.add(zaehlerart);
         grid.add(zaehlerartDrop);
         grid.add(zaehlernummer);
@@ -98,7 +92,6 @@ public class ZaehlerAenderungsFormular extends JFrame {
   }
 
     private void saveZaehler() {
-    int kundennummer = 0;
     int zaehlerstand = 0;
     
     String zaehlerart = String.valueOf(zaehlerartDrop.getSelectedItem());
@@ -109,10 +102,7 @@ public class ZaehlerAenderungsFormular extends JFrame {
     .toLocalDate();
     boolean eingebaut = eingebautCheck.isSelected();
     String kommentar = kommentarText.getText();
-    
-    try {
-      kundennummer = Integer.parseInt(kundenummerText.getText());
-    } catch (Exception e) {}
+
     try {
       zaehlerstand = Integer.parseInt(zaehlerstandText.getText());
   } catch (Exception e) {}
@@ -126,7 +116,7 @@ public class ZaehlerAenderungsFormular extends JFrame {
       Integer.valueOf(zaehlerstand)
     );
     int index = datenModel.getData().indexOf(data);
-    String s = PlausibilitaetsPruefung.machePlausabilitaetspruefung(kundenummerText.getText(),zaehlernummer,
+    String s = PlausibilitaetsPruefung.machePlausabilitaetspruefung(zaehlernummer,
     zaehlerstandText.getText(),eingebaut,datum);
     if(s.equals("")){
       datenModel.updateEntry(index ,newZaehlerdatum);

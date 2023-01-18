@@ -102,7 +102,6 @@ public class DatenFenster extends JFrame{
         }
     
         String[] headers = {
-           "Kundennummer",
             "Zählernummer",
             "Datum",
             "Neu eingebaut",
@@ -114,8 +113,7 @@ public class DatenFenster extends JFrame{
 
     private void removeEntry(int index){
         Ablesung curr = persistance.getEntry(index);
-        String s = "Kundennummer: " +  curr.getKunde().getId() + "\n";
-        s += "Zählernummer: " +  curr.getZaehlernummer() + "\n";
+        String s = "Zählernummer: " +  curr.getZaehlernummer() + "\n";
         s += "Datum: " +  curr.getDatum() + "\n";
         s += "Neu eingebaut: " +  curr.isNeuEingebaut() + "\n";
         s += "Zählerstand: " +  curr.getZaehlerstand() + "\n";

@@ -46,7 +46,6 @@ class ServerTest {
 	private static final String url = "http://localhost:8080/test";
 	private static final Client client = ClientBuilder.newClient();
 	private WebTarget target = client.target(url);
-
 	private static final String endpointKunden = "kunden";
 	private static final String endpointAblesungen = "ablesungen";
 	private static final String endpointAblesungClientStart = "ablesungen/vorZweiJahrenHeute";
