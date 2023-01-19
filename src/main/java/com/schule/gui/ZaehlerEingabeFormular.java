@@ -17,41 +17,31 @@ import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import javax.swing.*;
 
 import jakarta.ws.rs.client.Entity;
-import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.annotation.JSONP;
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
 public class ZaehlerEingabeFormular extends JFrame {
-    private final String[] zaehlerListe = {"Strom", "Gas", "Heizung", "Wasser"};
-    private final List<Ablesung> zaehlerdaten;
-    private final JComboBox<String> zaehlerartDrop = new JComboBox<String>(zaehlerListe);
     private final JTextField zaehlernummerText = new JTextField();
     private final JCheckBox eingebautCheck = new JCheckBox();
     private final JTextField zaehlerstandText = new JTextField();
     private final JTextField kommentarText = new JTextField();
     private final JDatePickerImpl datePicker;
     private final JDatePanelImpl datePanel;
-    private final ZaehlerDatenModel datenModel;
     private final String url = "http://localhost:8080";
     private final Client client = ClientBuilder.newClient();
     private final WebTarget target = client.target(url);
-    private final Response re2 = target.path("kunden").request().accept(MediaType.APPLICATION_JSON).get();
-    private final List<Kunde> kundenListe = re2.readEntity(new GenericType<>() {
-    });
+    private List<Kunde> kundenListe = getKundenListe();
 
     public ZaehlerEingabeFormular() {
         super("Zählerdaten erfassen");
         GridLayout gridLayout = new GridLayout(7, 2);
-
-        datenModel = ZaehlerDatenModel.getInstance();
 
         UtilDateModel model = new UtilDateModel();
         Properties p = new Properties();
@@ -66,12 +56,10 @@ public class ZaehlerEingabeFormular extends JFrame {
 
                     @Override
                     public void windowClosing(final WindowEvent e) {
-                        datenModel.save();
                         System.exit(0);
                     }
                 }
         );
-        zaehlerdaten = datenModel.getData();
         final Container con = getContentPane();
         con.setLayout(new BorderLayout());
         JPanel grid = new JPanel();
@@ -79,7 +67,6 @@ public class ZaehlerEingabeFormular extends JFrame {
 
         //Generieren der Labels, Buttons und Textfields
         JLabel kundeLabel = new JLabel("Kunde");
-        JLabel zaehlerart = new JLabel("Zählerart");
         JLabel zaehlernummer = new JLabel("Zählernummer (8-stellig)");
         zaehlernummerText.setToolTipText("Hier eine 8-stellige Kombination aus Zahlen und Buchstaben einfügen.");
         JLabel datum = new JLabel("Datum");
@@ -93,14 +80,11 @@ public class ZaehlerEingabeFormular extends JFrame {
         JComboBox<Kunde> kundeDropdown = new JComboBox<>();
         kundeDropdown.setModel(new DefaultComboBoxModel<>(kundenListe.toArray(new Kunde[0])));
         kundeDropdown.setSelectedIndex(-1);
-        zaehlerartDrop.setSelectedIndex(-1);
 
         //Hinzufügen der Components zum Grid
         con.add(grid, BorderLayout.CENTER);
         grid.add(kundeLabel);
         grid.add(kundeDropdown);
-        grid.add(zaehlerart);
-        grid.add(zaehlerartDrop);
         grid.add(zaehlernummer);
         grid.add(zaehlernummerText);
         grid.add(datum);
@@ -114,11 +98,10 @@ public class ZaehlerEingabeFormular extends JFrame {
         con.add(speichernBtn, BorderLayout.SOUTH);
         con.add(anzeigenBtn, BorderLayout.EAST);
 
-        anzeigenBtn.addActionListener(e -> datenFensteranzeigen(zaehlerdaten));
+        anzeigenBtn.addActionListener(e -> datenFensteranzeigen());
         speichernBtn.addActionListener(e -> saveZaehler());
         setSize(600, 300);
         setVisible(true);
-
         kommentarText.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
@@ -130,6 +113,12 @@ public class ZaehlerEingabeFormular extends JFrame {
 
     }
 
+    private List<Kunde> getKundenListe(){
+        Response kundenResponse = target.path("kunden").request().accept(MediaType.APPLICATION_JSON).get();
+        kundenListe = kundenResponse.readEntity(new GenericType<>() {});
+        return kundenListe;
+    }
+
     private void showGandalf() {
         ImageIcon imageIcon = new ImageIcon("Resources/Gandalf.jpg");
         JOptionPane.showMessageDialog(null,
@@ -138,7 +127,7 @@ public class ZaehlerEingabeFormular extends JFrame {
                 imageIcon);
     }
 
-    private void datenFensteranzeigen(List<Ablesung> zaehlerdaten) {
+    private void datenFensteranzeigen() {
         Response re = target.path("ablesungen/vorZweiJahrenHeute")
                 .request().accept(MediaType.APPLICATION_JSON).get();
         List<Ablesung> ablesungen = re.readEntity(new GenericType<List<Ablesung>>() {
@@ -148,8 +137,6 @@ public class ZaehlerEingabeFormular extends JFrame {
 
     private void saveZaehler() {
         int zaehlerstand = 0;
-
-        String zaehlerart = String.valueOf(zaehlerartDrop.getSelectedItem());
         String zaehlernummer = zaehlernummerText.getText();
         Date date = (Date) datePicker.getModel().getValue();
         LocalDate datum = date.toInstant()
@@ -169,11 +156,15 @@ public class ZaehlerEingabeFormular extends JFrame {
                 kundenListe.get(0),
                 kommentar,
                 eingebaut,
-                Integer.valueOf(zaehlerstand)
+                zaehlerstand
         );
         String s = PlausibilitaetsPruefung.machePlausabilitaetspruefung(zaehlernummer,
                 zaehlerstandText.getText(), eingebaut, datum);
         boolean exists = false;
+        Response re = target.path("ablesungen/vorZweiJahrenHeute")
+                .request().accept(MediaType.APPLICATION_JSON).get();
+        List<Ablesung> zaehlerdaten = re.readEntity(new GenericType<List<Ablesung>>() {
+        });
         for (Ablesung curr : zaehlerdaten) {
             if (newAblesung.equals(curr)) {
                 exists = true;
@@ -183,10 +174,8 @@ public class ZaehlerEingabeFormular extends JFrame {
             showErrorWindow("Dieser Eintrag exsistiert bereits!");
         } else if (!s.equals("")) {
             showErrorWindow(s);
-        } else {
-            zaehlerdaten.add(newAblesung);
         }
-        Response re = target.path("ablesungen").request(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+        target.path("ablesungen").request(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(newAblesung, MediaType.APPLICATION_JSON));
         System.out.println(re.getStatus());
 
