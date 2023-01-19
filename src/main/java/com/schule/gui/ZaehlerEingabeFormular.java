@@ -8,7 +8,9 @@ import com.schule.services.PlausibilitaetsPruefung;
 
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.client.Invocation.Builder;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -140,11 +142,9 @@ public class ZaehlerEingabeFormular extends JFrame {
 	    Client client = ClientBuilder.newClient();
 	    WebTarget target = client.target(url);
         
-        Response re = target.path("ablesungen/vorZweiJahrenHeute")
-            .request().accept(MediaType.APPLICATION_JSON).get();
-		List<Ablesung> ablesungen = re.readEntity(new GenericType<List<Ablesung>>() {
-		});
-        new DatenFenster(ablesungen);
+        Builder builder = target.path("ablesungen/vorZweiJahrenHeute")
+            .request().accept(MediaType.APPLICATION_JSON);
+        new DatenFenster(builder);
     }
 
     private void saveZaehler() {

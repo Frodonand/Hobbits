@@ -7,6 +7,8 @@ import com.schule.model.ZaehlerDatenModel;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.client.Invocation.Builder;
+import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -23,27 +25,25 @@ import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyAdapter;
-import java.text.DateFormat;
 import java.time.LocalDate;
 import java.awt.Container;
 import java.util.List;
-import java.util.Locale;
 
 public class DatenFenster extends JFrame{
 
     private JTable datenanzeigeFeld;
     private JScrollPane sp;
     private List<Ablesung> dataList;
-    private ZaehlerDatenModel persistance;
+    private Builder request;
 
-    public DatenFenster(List<Ablesung> dataList){
-        this.dataList = dataList;
+    public DatenFenster(Builder builder){
+        request = builder;
         datenanzeigeFeld = new JTable() {
-        private static final long serialVersionUID = 1L;
-
-        public boolean isCellEditable(int row, int column) {                
+            private static final long serialVersionUID = 1L;
+            
+            public boolean isCellEditable(int row, int column) {                
                 return false;               
-        };
+            };
     };
     update();
 
@@ -88,6 +88,12 @@ public class DatenFenster extends JFrame{
     }
 
     public void update(){
+        Response re = request.get();
+        System.out.println(re.getStatus());
+        this.dataList = re.readEntity(new GenericType<List<Ablesung>>() {
+		});
+        System.out.println(dataList);
+        
         Object[][] allData = new Object[dataList.size()][7];
     
         for (int i = 0; i<dataList.size();i++) {
