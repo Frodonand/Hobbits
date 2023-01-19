@@ -2,6 +2,11 @@ package com.schule.gui;
 
 import com.schule.data.Kunde;
 import com.schule.model.ZaehlerDatenModel;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.glassfish.hk2.api.PostConstruct;
 
@@ -64,7 +69,15 @@ public class KundenFenster extends JFrame {
     private void saveKunde() {
         String vorname= vornameText.getText();
         String name = nameText.getText();
+        Kunde kunde = new Kunde(name,vorname);
 
+        String url = "http://localhost:8080/";
+        Client client = ClientBuilder.newClient();
+        WebTarget target = client.target(url);
+        Response re = target.path("ablesungen").request(MediaType.APPLICATION_JSON).accept(MediaType.TEXT_PLAIN)
+                .post(Entity.entity(kunde, MediaType.APPLICATION_JSON));
+        System.out.println(re.getStatus());
+        setVisible(false);
 
 
 

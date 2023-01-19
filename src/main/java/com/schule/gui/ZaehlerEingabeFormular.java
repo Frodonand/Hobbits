@@ -43,7 +43,7 @@ public class ZaehlerEingabeFormular extends JFrame {
 
     public ZaehlerEingabeFormular() {
         super("Zählerdaten erfassen");
-        GridLayout gridLayout = new GridLayout(7, 2);
+        GridLayout gridLayout = new GridLayout(8, 2);
 
     datenModel = ZaehlerDatenModel.getInstance();
 
@@ -118,7 +118,7 @@ public class ZaehlerEingabeFormular extends JFrame {
         speichernBtn.addActionListener(e -> saveZaehler());
         List<Kunde> kundenDaten = null;
         kundenBtn.addActionListener((e -> kundenFensteranzeigen()));
-        setSize(600, 300);
+        setSize(700, 300);
         setVisible(true);
 
         kommentarText.addKeyListener(new KeyAdapter() {
