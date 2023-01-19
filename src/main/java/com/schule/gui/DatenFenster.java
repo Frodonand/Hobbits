@@ -79,7 +79,12 @@ public class DatenFenster extends JFrame{
     }
 
     protected void openEditor(int index) {
-        new ZaehlerAenderungsFormular(dataList.get(index),this);
+        Ablesung a = dataList.get(index);
+        if(a.getKunde()!=null){
+            new ZaehlerAenderungsFormular(a,this);
+        }else{
+            JOptionPane.showMessageDialog(this, "Die Zählerdaten können nicht verändertwerden, da kein Kunde vorhanden ist.");
+        }
     }
 
     public void update(){
