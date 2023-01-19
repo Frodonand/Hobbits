@@ -41,6 +41,8 @@ public class ZaehlerEingabeFormular extends JFrame {
     private final WebTarget target = client.target(url);
     private List<Kunde> kundenListe = getKundenListe();
 
+    private JComboBox<Kunde> kundeDropdown;
+
     public ZaehlerEingabeFormular() {
         super("Zählerdaten erfassen");
         GridLayout gridLayout = new GridLayout(7, 2);
@@ -79,7 +81,7 @@ public class ZaehlerEingabeFormular extends JFrame {
         JButton speichernBtn = new JButton("Speichern");
         JButton anzeigenBtn = new JButton("Daten anzeigen");
 
-        JComboBox<Kunde> kundeDropdown = new JComboBox<>();
+        kundeDropdown = new JComboBox<Kunde>();
         kundeDropdown.setModel(new DefaultComboBoxModel<>(kundenListe.toArray(new Kunde[0])));
         kundeDropdown.setSelectedIndex(-1);
 
@@ -129,11 +131,7 @@ public class ZaehlerEingabeFormular extends JFrame {
                 imageIcon);
     }
 
-    private void datenFensteranzeigen(List<Ablesung> zaehlerdaten) {
-        String url = "http://localhost:8080";
-	    Client client = ClientBuilder.newClient();
-	    WebTarget target = client.target(url);
-        
+    private void datenFensteranzeigen() {
         Builder builder = target.path("ablesungen/vorZweiJahrenHeute")
             .request().accept(MediaType.APPLICATION_JSON);
         new DatenFenster(builder);
@@ -157,7 +155,7 @@ public class ZaehlerEingabeFormular extends JFrame {
         Ablesung newAblesung = new Ablesung(
                 zaehlernummer,
                 datum,
-                kundenListe.get(0),
+                (Kunde) kundeDropdown.getSelectedItem(),
                 kommentar,
                 eingebaut,
                 zaehlerstand
@@ -165,7 +163,8 @@ public class ZaehlerEingabeFormular extends JFrame {
         String s = PlausibilitaetsPruefung.machePlausabilitaetspruefung(zaehlernummer,
                 zaehlerstandText.getText(), eingebaut, datum);
         boolean exists = false;
-        Response re = target.path("ablesungen/vorZweiJahrenHeute")
+        // TODO: Dupletten Prüfung funktioniert nicht
+        Response re = target.path("ablesungen")
                 .request().accept(MediaType.APPLICATION_JSON).get();
         List<Ablesung> zaehlerdaten = re.readEntity(new GenericType<List<Ablesung>>() {
         });
@@ -181,8 +180,6 @@ public class ZaehlerEingabeFormular extends JFrame {
         }
         target.path("ablesungen").request(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(newAblesung, MediaType.APPLICATION_JSON));
-        System.out.println(re.getStatus());
-
     }
 
     private void showErrorWindow(String message) {

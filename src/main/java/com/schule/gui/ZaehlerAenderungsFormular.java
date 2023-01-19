@@ -114,7 +114,7 @@ public class ZaehlerAenderungsFormular extends JFrame {
       eingebaut,
       Integer.valueOf(zaehlerstand)
     );
-    String s = PlausibilitaetsPruefung.machePlausabilitaetspruefung("",zaehlernummer,
+    String s = PlausibilitaetsPruefung.machePlausabilitaetspruefung(zaehlernummer,
     zaehlerstandText.getText(),eingebaut,datum);
     if(s.equals("")){
       String url = "http://localhost:8080";
