@@ -11,7 +11,7 @@ import javax.swing.JOptionPane;
 
 public class PlausibilitaetsPruefung {
     
-    public static String machePlausabilitaetspruefung(String kundenummerText, String zaehlernummerText,
+    public static String machePlausabilitaetspruefung(String zaehlernummerText,
     String zaehlerstandText,boolean eingebautCheck, LocalDate date)  {
         String s ="";
         /*try{

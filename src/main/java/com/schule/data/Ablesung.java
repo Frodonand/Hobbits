@@ -16,7 +16,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonTypeName(value = "ablseung")
+@JsonTypeName(value = "ablesung")
 public class Ablesung {
 
     @JsonProperty
@@ -35,7 +35,7 @@ public class Ablesung {
     private Number zaehlerstand;
 
     public Ablesung(String zaehlernummer, LocalDate datum, Kunde kunde, String kommentar, boolean neuEingebaut,
-    Number zaehlerstand) {
+                    Number zaehlerstand) {
         id = UUID.randomUUID();
         this.zaehlernummer = zaehlernummer;
         this.datum = datum;
@@ -44,7 +44,7 @@ public class Ablesung {
         this.neuEingebaut = neuEingebaut;
         this.zaehlerstand = zaehlerstand;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)

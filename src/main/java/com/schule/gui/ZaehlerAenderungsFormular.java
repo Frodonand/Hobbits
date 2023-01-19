@@ -92,7 +92,7 @@ public class ZaehlerAenderungsFormular extends JFrame {
 
     private void saveZaehler() {
     int zaehlerstand = 0;
-    
+
     String zaehlernummer = zaehlernummerText.getText();
     Date date = (Date) datePicker.getModel().getValue();
     LocalDate datum = date.toInstant()
@@ -100,7 +100,7 @@ public class ZaehlerAenderungsFormular extends JFrame {
     .toLocalDate();
     boolean eingebaut = eingebautCheck.isSelected();
     String kommentar = kommentarText.getText();
-    
+
     try {
       zaehlerstand = Integer.parseInt(zaehlerstandText.getText());
   } catch (Exception e) {}
@@ -114,7 +114,7 @@ public class ZaehlerAenderungsFormular extends JFrame {
       eingebaut,
       Integer.valueOf(zaehlerstand)
     );
-    String s = PlausibilitaetsPruefung.machePlausabilitaetspruefung("",zaehlernummer,
+    String s = PlausibilitaetsPruefung.machePlausabilitaetspruefung(zaehlernummer,
     zaehlerstandText.getText(),eingebaut,datum);
     if(s.equals("")){
       String url = "http://localhost:8080";
