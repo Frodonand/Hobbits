@@ -45,7 +45,7 @@ public class ZaehlerEingabeFormular extends JFrame {
 
     public ZaehlerEingabeFormular() {
         super("Zählerdaten erfassen");
-        GridLayout gridLayout = new GridLayout(7, 2);
+        GridLayout gridLayout = new GridLayout(8, 2);
 
         UtilDateModel model = new UtilDateModel();
         Properties p = new Properties();
@@ -80,6 +80,7 @@ public class ZaehlerEingabeFormular extends JFrame {
 
         JButton speichernBtn = new JButton("Speichern");
         JButton anzeigenBtn = new JButton("Daten anzeigen");
+        JButton kundenBtn = new JButton("Kunde anlegen");
 
         kundeDropdown = new JComboBox<Kunde>();
         kundeDropdown.setModel(new DefaultComboBoxModel<>(kundenListe.toArray(new Kunde[0])));
@@ -99,13 +100,17 @@ public class ZaehlerEingabeFormular extends JFrame {
         grid.add(zaehlerstandText);
         grid.add(kommentar);
         grid.add(kommentarText);
+        grid.add(kundenBtn);
         con.add(speichernBtn, BorderLayout.SOUTH);
         con.add(anzeigenBtn, BorderLayout.EAST);
 
         anzeigenBtn.addActionListener(e -> datenFensteranzeigen());
         speichernBtn.addActionListener(e -> saveZaehler());
-        setSize(600, 300);
+        List<Kunde> kundenDaten = null;
+        kundenBtn.addActionListener((e -> kundenFensteranzeigen()));
+        setSize(700, 300);
         setVisible(true);
+
         kommentarText.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
@@ -131,6 +136,9 @@ public class ZaehlerEingabeFormular extends JFrame {
                 imageIcon);
     }
 
+    private void kundenFensteranzeigen() {
+        new KundenFenster(this);
+    }
     private void datenFensteranzeigen() {
         Builder builder = target.path("ablesungen/vorZweiJahrenHeute")
             .request().accept(MediaType.APPLICATION_JSON);
@@ -185,11 +193,17 @@ public class ZaehlerEingabeFormular extends JFrame {
         }
     }
 
-    private void showErrorWindow(String message) {
+    private void showErrorWindow(String message){
         String appendedMessage =
                 "Eine Speicherung des Datensatzes ist nicht erfolgt. \n" + message;
         JOptionPane.showMessageDialog(this, appendedMessage);
     }
+    public void update(){
+        kundenListe = getKundenListe();
+        kundeDropdown.setModel(new DefaultComboBoxModel<>(kundenListe.toArray(new Kunde[0])));
+        kundeDropdown.setSelectedIndex(kundenListe.size()-1);
 
+    }
 
 }
+
