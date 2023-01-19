@@ -17,6 +17,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -36,7 +37,11 @@ public class ZaehlerEingabeFormular extends JFrame {
     private final JTextField zaehlerstandText = new JTextField();
     private final JTextField kommentarText = new JTextField();
     private final JDatePickerImpl datePicker;
+    private final JDatePickerImpl datePickerVon;
+    private final JDatePickerImpl datePickerBis;
     private final JDatePanelImpl datePanel;
+    private final JDatePanelImpl datePanelVon;
+    private final JDatePanelImpl datePanelBis;
 
 
   private final ZaehlerDatenModel datenModel;
@@ -55,6 +60,17 @@ public class ZaehlerEingabeFormular extends JFrame {
     datePanel = new JDatePanelImpl(model, p);
     datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
     datePicker.getModel().setSelected(true);
+
+        UtilDateModel modelVon = new UtilDateModel();
+        datePanelVon = new JDatePanelImpl(modelVon, p);
+        datePickerVon = new JDatePickerImpl(datePanelVon, new DateLabelFormatter());
+        datePickerVon.getModel().setSelected(true);
+
+        UtilDateModel modelBis = new UtilDateModel();
+        datePanelBis = new JDatePanelImpl(modelBis, p);
+        datePickerBis = new JDatePickerImpl(datePanelBis, new DateLabelFormatter());
+        datePickerBis.getModel().setSelected(true);
+
     addWindowListener(
       new WindowAdapter() {
 
@@ -75,6 +91,7 @@ public class ZaehlerEingabeFormular extends JFrame {
 
         JPanel grid = new JPanel();
         grid.setLayout(gridLayout);
+        JPanel gridUnten = new JPanel(new GridLayout(4,3));
 
 
         //Generieren der Labels, Buttons und Textfields
@@ -87,9 +104,11 @@ public class ZaehlerEingabeFormular extends JFrame {
         JLabel eingebaut = new JLabel("neu eingebaut");
         JLabel zaehlerstand = new JLabel("Zählerstand");
         JLabel kommentar = new JLabel("Kommentar");
+        JLabel datumFilterLabel = new JLabel("Filter Datum von...bis: ");
 
         JButton speichernBtn = new JButton("Speichern");
         JButton anzeigenBtn = new JButton("Daten anzeigen");
+        JButton gefiltertBtn = new JButton("gefilterte Daten anzeigen");
 
 
         //Hinzufügen der Components zum Grid
@@ -108,11 +127,24 @@ public class ZaehlerEingabeFormular extends JFrame {
         grid.add(zaehlerstandText);
         grid.add(kommentar);
         grid.add(kommentarText);
-        con.add(speichernBtn, BorderLayout.SOUTH);
         con.add(anzeigenBtn, BorderLayout.EAST);
+        con.add(gridUnten, BorderLayout.SOUTH);
+        gridUnten.add(new JLabel(""));
+        gridUnten.add(speichernBtn);
+        gridUnten.add(new JLabel(""));
+        gridUnten.add(new JLabel(""));
+        gridUnten.add(new JLabel(""));
+        gridUnten.add(new JLabel(""));
+        gridUnten.add(datumFilterLabel);
+        gridUnten.add(datePickerVon);
+        gridUnten.add(datePickerBis);
+        gridUnten.add(new JLabel(""));
+        gridUnten.add(gefiltertBtn);
+
 
         anzeigenBtn.addActionListener(e -> datenFensteranzeigen(zaehlerdaten));
         speichernBtn.addActionListener(e -> saveZaehler());
+        gefiltertBtn.addActionListener(e -> datenFenstergefiltertAnzeigen());
         setSize(600, 300);
         setVisible(true);
 
@@ -145,6 +177,30 @@ public class ZaehlerEingabeFormular extends JFrame {
 		List<Ablesung> ablesungen = re.readEntity(new GenericType<List<Ablesung>>() {
 		});
         new DatenFenster(ablesungen);
+    }
+
+    private void datenFenstergefiltertAnzeigen() {
+        final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        String url = "http://localhost:8080";
+        Client client = ClientBuilder.newClient();
+        WebTarget target = client.target(url);
+
+        Date dateVon = (Date) datePickerVon.getModel().getValue();
+        LocalDate datumVon = dateVon.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+        Date dateBis = (Date) datePickerBis.getModel().getValue();
+        LocalDate datumBis = dateBis.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        String beginnString = datumVon.format(dateFormatter);
+        String endeString = datumBis.format(dateFormatter);
+
+        Response re = target.path("ablesungen").queryParam("kunde", "").queryParam("beginn", beginnString)
+                .queryParam("ende", endeString).request().accept(MediaType.APPLICATION_JSON).get();
+
     }
 
     private void saveZaehler() {
