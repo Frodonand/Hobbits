@@ -6,6 +6,13 @@ import com.schule.data.Ablesung;
 import com.schule.model.ZaehlerDatenModel;
 import com.schule.services.PlausibilitaetsPruefung;
 
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
@@ -14,9 +21,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
 
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
@@ -132,7 +136,15 @@ public class ZaehlerEingabeFormular extends JFrame {
     }
 
     private void datenFensteranzeigen(List<Ablesung> zaehlerdaten) {
-        new DatenFenster(zaehlerdaten);
+        String url = "http://localhost:8080";
+	    Client client = ClientBuilder.newClient();
+	    WebTarget target = client.target(url);
+        
+        Response re = target.path("ablesungen/vorZweiJahrenHeute")
+            .request().accept(MediaType.APPLICATION_JSON).get();
+		List<Ablesung> ablesungen = re.readEntity(new GenericType<List<Ablesung>>() {
+		});
+        new DatenFenster(ablesungen);
     }
 
     private void saveZaehler() {

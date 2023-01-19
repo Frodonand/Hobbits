@@ -4,6 +4,12 @@ import com.schule.data.Ablesung;
 import com.schule.data.Ablesung;
 import com.schule.model.ZaehlerDatenModel;
 
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -20,7 +26,6 @@ import java.awt.event.KeyAdapter;
 import java.text.DateFormat;
 import java.time.LocalDate;
 import java.awt.Container;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -32,8 +37,6 @@ public class DatenFenster extends JFrame{
     private ZaehlerDatenModel persistance;
 
     public DatenFenster(List<Ablesung> dataList){
-
-        persistance = ZaehlerDatenModel.getInstance();
         this.dataList = dataList;
         datenanzeigeFeld = new JTable() {
         private static final long serialVersionUID = 1L;
@@ -81,13 +84,15 @@ public class DatenFenster extends JFrame{
 
     public void update(){
         Object[][] allData = new Object[dataList.size()][7];
-        Locale locale = new Locale("de", "DE");
-        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.DEFAULT, locale);
     
         for (int i = 0; i<dataList.size();i++) {
             Ablesung curr = dataList.get(i);
             Object[] o = new Object[6];
-            o[0]= curr.getKunde().getId();
+            if(curr.getKunde()!=null){
+                o[0]= curr.getKunde().getId();
+            }else{
+                o[0]= null;
+            }
             o[1]= curr.getZaehlernummer();
             o[3]= curr.isNeuEingebaut();
             o[4]= curr.getZaehlerstand();
@@ -96,7 +101,7 @@ public class DatenFenster extends JFrame{
             if(date == null){
                 o[2]= null;
             }else{
-                o[2]= dateFormat.format(date);
+                o[2]= date.toString();
             }
             allData[i]=o;
         }
@@ -113,8 +118,13 @@ public class DatenFenster extends JFrame{
     }
 
     private void removeEntry(int index){
-        Ablesung curr = persistance.getEntry(index);
-        String s = "Kundennummer: " +  curr.getKunde().getId() + "\n";
+        Ablesung curr = dataList.get(index);
+        String s = "";
+        if(curr.getKunde() != null){
+            s += "Kundennummer: " +  curr.getKunde().getId() + "\n";
+        }else{
+            s += "Kundennummer: \n";
+        }
         s += "Zählernummer: " +  curr.getZaehlernummer() + "\n";
         s += "Datum: " +  curr.getDatum() + "\n";
         s += "Neu eingebaut: " +  curr.isNeuEingebaut() + "\n";
@@ -126,8 +136,14 @@ public class DatenFenster extends JFrame{
         if (dialog == JOptionPane.NO_OPTION) {
             JOptionPane.showMessageDialog(this, "Die Zählerdaten wurden nicht gelöscht.");
         } else{
-        persistance.removeEntry(index);
+            String url = "http://localhost:8080";
+	        Client client = ClientBuilder.newClient();
+	        WebTarget target = client.target(url);
+            target.path("ablesungen".concat("/").concat(curr.getId().toString())).request()
+            .accept(MediaType.APPLICATION_JSON).delete();
+            //Ablesung result = re.readEntity(Ablesung.class);
         JOptionPane.showMessageDialog(this, "Die Zählerdaten wurden gelöscht.");
+        dataList.remove(index);
         update();
     }
     }
