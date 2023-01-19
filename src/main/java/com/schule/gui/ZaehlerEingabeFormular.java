@@ -43,7 +43,6 @@ public class ZaehlerEingabeFormular extends JFrame {
     private final JDatePickerImpl datePicker;
     private final JDatePanelImpl datePanel;
     private final ZaehlerDatenModel datenModel;
-
     private final String url = "http://localhost:8080";
     private final Client client = ClientBuilder.newClient();
     private final WebTarget target = client.target(url);
@@ -72,8 +71,6 @@ public class ZaehlerEingabeFormular extends JFrame {
                     }
                 }
         );
-
-
         zaehlerdaten = datenModel.getData();
 
         final Container con = getContentPane();
@@ -140,9 +137,9 @@ public class ZaehlerEingabeFormular extends JFrame {
 
     private void datenFensteranzeigen(List<Ablesung> zaehlerdaten) {
         Response re = target.path("ablesungen/vorZweiJahrenHeute")
-            .request().accept(MediaType.APPLICATION_JSON).get();
-		List<Ablesung> ablesungen = re.readEntity(new GenericType<List<Ablesung>>() {
-		});
+                .request().accept(MediaType.APPLICATION_JSON).get();
+        List<Ablesung> ablesungen = re.readEntity(new GenericType<List<Ablesung>>() {
+        });
         new DatenFenster(ablesungen);
     }
 
