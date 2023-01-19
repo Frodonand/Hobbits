@@ -186,8 +186,11 @@ public class ZaehlerEingabeFormular extends JFrame {
         } else if (!s.equals("")) {
             showErrorWindow(s);
         }
-        target.path("ablesungen").request(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+        Response response = target.path("ablesungen").request(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(newAblesung, MediaType.APPLICATION_JSON));
+        if(response.getStatus() != 201){
+            showErrorWindow("Bitte geben Sie einen Kunden an.");
+        }
     }
 
     private void showErrorWindow(String message){
