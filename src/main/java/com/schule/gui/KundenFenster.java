@@ -29,10 +29,11 @@ public class KundenFenster extends JFrame {
     private List<Kunde> dataList;
     private ZaehlerDatenModel persistance;
 
+ZaehlerEingabeFormular parent;
 
-
-    public KundenFenster() {
+    public KundenFenster(ZaehlerEingabeFormular parent) {
         super("Kunden anlegen");
+        this.parent=parent;
         GridLayout gridLayout = new GridLayout(4, 2);
 
         persistance = ZaehlerDatenModel.getInstance();
@@ -67,15 +68,17 @@ public class KundenFenster extends JFrame {
     }
 
     private void saveKunde() {
+
         String vorname= vornameText.getText();
         String name = nameText.getText();
         Kunde kunde = new Kunde(name,vorname);
 
-        String url = "http://localhost:8080/";
+        String url = "http://localhost:8080";
         Client client = ClientBuilder.newClient();
         WebTarget target = client.target(url);
-        Response re = target.path("ablesungen").request(MediaType.APPLICATION_JSON).accept(MediaType.TEXT_PLAIN)
+        Response re = target.path("kunden").request(MediaType.APPLICATION_JSON).accept(MediaType.TEXT_PLAIN)
                 .post(Entity.entity(kunde, MediaType.APPLICATION_JSON));
+        parent.update();
         System.out.println(re.getStatus());
         setVisible(false);
 
