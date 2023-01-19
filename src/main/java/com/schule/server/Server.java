@@ -28,7 +28,7 @@ public class Server {
 
     public static void main(String[] args) {
         startServer("http://localhost:8080/", true);
-        stopServer(true);
+        //stopServer(true);
     }
 
     public static void startServer(String url, boolean loadFromFile){
@@ -43,6 +43,9 @@ public class Server {
 
                 List<Ablesung> alleAblesungen = ablesungenPersistance.load();
                 ablesungModel.setAblesungsList(alleAblesungen);
+                System.out.println(ablesungModel.getAblesungsList());
+                System.out.println( kundenModel.getData());
+
                 }
             }
             final ResourceConfig rc = new ResourceConfig().packages(PACK);
