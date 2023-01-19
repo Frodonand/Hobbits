@@ -44,6 +44,10 @@ public class ZaehlerEingabeFormular extends JFrame {
     private final JDatePanelImpl datePanel;
     private final ZaehlerDatenModel datenModel;
 
+    private final String url = "http://localhost:8080";
+    private final Client client = ClientBuilder.newClient();
+    private final WebTarget target = client.target(url);
+
     public ZaehlerEingabeFormular() {
         super("Zählerdaten erfassen");
         GridLayout gridLayout = new GridLayout(7, 2);
@@ -135,10 +139,6 @@ public class ZaehlerEingabeFormular extends JFrame {
     }
 
     private void datenFensteranzeigen(List<Ablesung> zaehlerdaten) {
-        String url = "http://localhost:8080";
-	    Client client = ClientBuilder.newClient();
-	    WebTarget target = client.target(url);
-        
         Response re = target.path("ablesungen/vorZweiJahrenHeute")
             .request().accept(MediaType.APPLICATION_JSON).get();
 		List<Ablesung> ablesungen = re.readEntity(new GenericType<List<Ablesung>>() {
@@ -146,7 +146,7 @@ public class ZaehlerEingabeFormular extends JFrame {
         new DatenFenster(ablesungen);
     }
 
-    private Response saveZaehler() {
+    private void saveZaehler() {
         int zaehlerstand = 0;
 
         String zaehlerart = String.valueOf(zaehlerartDrop.getSelectedItem());
@@ -162,11 +162,13 @@ public class ZaehlerEingabeFormular extends JFrame {
             zaehlerstand = Integer.parseInt(zaehlerstandText.getText());
         } catch (Exception e) {
         }
-
+        Response re2 = target.path("kunden").request().accept(MediaType.APPLICATION_JSON).get();
+        List<Kunde> responseKunden = re2.readEntity(new GenericType<List<Kunde>>() {
+        });
         Ablesung newAblesung = new Ablesung(
                 zaehlernummer,
                 datum,
-                new Kunde(),
+                responseKunden.get(0),
                 kommentar,
                 eingebaut,
                 Integer.valueOf(zaehlerstand)
@@ -186,11 +188,10 @@ public class ZaehlerEingabeFormular extends JFrame {
         } else {
             zaehlerdaten.add(newAblesung);
         }
-        String url = "http://localhost:8080/";
-        Client client = ClientBuilder.newClient();
-        WebTarget target = client.target(url);
-        return target.path("/ablesungen").request(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+        Response re = target.path("ablesungen").request(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(newAblesung, MediaType.APPLICATION_JSON));
+        System.out.println(re.getStatus());
+
     }
 
     private void showErrorWindow(String message) {
