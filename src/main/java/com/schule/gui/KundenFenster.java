@@ -71,6 +71,11 @@ ZaehlerEingabeFormular parent;
 
         String vorname= vornameText.getText();
         String name = nameText.getText();
+        if(vorname.trim().isEmpty() && name.trim().isEmpty()){
+            String appendedMessage= "Der Kundenname darf nicht leer sein!";
+            JOptionPane.showMessageDialog(this, appendedMessage);
+            return;
+        }
         Kunde kunde = new Kunde(name,vorname);
 
         String url = "http://localhost:8080";
