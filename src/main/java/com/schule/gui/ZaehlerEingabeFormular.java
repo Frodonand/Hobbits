@@ -17,17 +17,14 @@ import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import javax.swing.*;
 
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.annotation.JSONP;
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
@@ -46,6 +43,9 @@ public class ZaehlerEingabeFormular extends JFrame {
     private final String url = "http://localhost:8080";
     private final Client client = ClientBuilder.newClient();
     private final WebTarget target = client.target(url);
+    private final Response re2 = target.path("kunden").request().accept(MediaType.APPLICATION_JSON).get();
+    private final List<Kunde> kundenListe = re2.readEntity(new GenericType<>() {
+    });
 
     public ZaehlerEingabeFormular() {
         super("Zählerdaten erfassen");
@@ -72,16 +72,13 @@ public class ZaehlerEingabeFormular extends JFrame {
                 }
         );
         zaehlerdaten = datenModel.getData();
-
         final Container con = getContentPane();
-
         con.setLayout(new BorderLayout());
-
         JPanel grid = new JPanel();
         grid.setLayout(gridLayout);
 
-
         //Generieren der Labels, Buttons und Textfields
+        JLabel kundeLabel = new JLabel("Kunde");
         JLabel zaehlerart = new JLabel("Zählerart");
         JLabel zaehlernummer = new JLabel("Zählernummer (8-stellig)");
         zaehlernummerText.setToolTipText("Hier eine 8-stellige Kombination aus Zahlen und Buchstaben einfügen.");
@@ -93,9 +90,15 @@ public class ZaehlerEingabeFormular extends JFrame {
         JButton speichernBtn = new JButton("Speichern");
         JButton anzeigenBtn = new JButton("Daten anzeigen");
 
+        JComboBox<Kunde> kundeDropdown = new JComboBox<>();
+        kundeDropdown.setModel(new DefaultComboBoxModel<>(kundenListe.toArray(new Kunde[0])));
+        kundeDropdown.setSelectedIndex(-1);
+        zaehlerartDrop.setSelectedIndex(-1);
 
         //Hinzufügen der Components zum Grid
         con.add(grid, BorderLayout.CENTER);
+        grid.add(kundeLabel);
+        grid.add(kundeDropdown);
         grid.add(zaehlerart);
         grid.add(zaehlerartDrop);
         grid.add(zaehlernummer);
@@ -159,13 +162,11 @@ public class ZaehlerEingabeFormular extends JFrame {
             zaehlerstand = Integer.parseInt(zaehlerstandText.getText());
         } catch (Exception e) {
         }
-        Response re2 = target.path("kunden").request().accept(MediaType.APPLICATION_JSON).get();
-        List<Kunde> responseKunden = re2.readEntity(new GenericType<List<Kunde>>() {
-        });
+
         Ablesung newAblesung = new Ablesung(
                 zaehlernummer,
                 datum,
-                responseKunden.get(0),
+                kundenListe.get(0),
                 kommentar,
                 eingebaut,
                 Integer.valueOf(zaehlerstand)
