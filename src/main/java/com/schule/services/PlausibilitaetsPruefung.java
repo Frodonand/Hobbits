@@ -14,6 +14,14 @@ public class PlausibilitaetsPruefung {
     public static String machePlausabilitaetspruefung(String zaehlernummerText,
     String zaehlerstandText,boolean eingebautCheck, LocalDate date)  {
         String s ="";
+        /*try{
+            Integer.parseInt(kundenummerText);
+            if (kundenummerText.length() != 8) {
+                s +="Kundennummer zu lang oder zu kurz \n";
+            }
+        }catch(NumberFormatException e){
+            s+="Kundennummer muss eine ganze Zahl sein \n";
+        }*/
         if (zaehlernummerText.length() != 8) {
             s += "Zählernummer zu lang oder zu kurz\n";
         }else if (!checkIfStringIsASCII(zaehlernummerText)) {

@@ -6,6 +6,13 @@ import com.schule.data.Kunde;
 import com.schule.model.ZaehlerDatenModel;
 import com.schule.services.PlausibilitaetsPruefung;
 
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -17,8 +24,6 @@ import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
 public class ZaehlerAenderungsFormular extends JFrame {
-  private final String[] zaehlerListe = { "Strom", "Gas", "Heizung", "Wasser" };
-  private final JComboBox<String> zaehlerartDrop;
   private final JTextField zaehlernummerText;
   private final JCheckBox eingebautCheck;
   private final JTextField zaehlerstandText;
@@ -26,7 +31,6 @@ public class ZaehlerAenderungsFormular extends JFrame {
   private final JDatePickerImpl datePicker;
   private final JDatePanelImpl datePanel;
 
-  private final ZaehlerDatenModel datenModel;
   private final Ablesung data;
   private final DatenFenster parent;
 
@@ -35,7 +39,6 @@ public class ZaehlerAenderungsFormular extends JFrame {
     GridLayout gridLayout = new GridLayout(7, 2);
 
     this.parent = parent;
-    datenModel = ZaehlerDatenModel.getInstance();
     this.data = data;
 
     UtilDateModel model = new UtilDateModel();
@@ -54,14 +57,12 @@ public class ZaehlerAenderungsFormular extends JFrame {
     grid.setLayout(gridLayout);
 
     //Generieren der Labels, Buttons und Textfields
-    JLabel zaehlerart = new JLabel("Zählerart");
     JLabel zaehlernummer = new JLabel("Zählernummer");
     JLabel datum = new JLabel("Datum");
     JLabel eingebaut = new JLabel("neu eingebaut");
     JLabel zaehlerstand = new JLabel("Zählerstand");
     JLabel kommentar = new JLabel("Kommentar");
 
-     zaehlerartDrop = new JComboBox<String>(zaehlerListe);
      zaehlernummerText = new JTextField(data.getZaehlernummer());
      eingebautCheck = new JCheckBox();
      eingebautCheck.setSelected(data.isNeuEingebaut());
@@ -72,8 +73,6 @@ public class ZaehlerAenderungsFormular extends JFrame {
 
         //Hinzufügen der Components zum Grid
         con.add(grid, BorderLayout.CENTER);
-        grid.add(zaehlerart);
-        grid.add(zaehlerartDrop);
         grid.add(zaehlernummer);
         grid.add(zaehlernummerText);
         grid.add(datum);
@@ -93,8 +92,7 @@ public class ZaehlerAenderungsFormular extends JFrame {
 
     private void saveZaehler() {
     int zaehlerstand = 0;
-    
-    String zaehlerart = String.valueOf(zaehlerartDrop.getSelectedItem());
+
     String zaehlernummer = zaehlernummerText.getText();
     Date date = (Date) datePicker.getModel().getValue();
     LocalDate datum = date.toInstant()
@@ -108,19 +106,24 @@ public class ZaehlerAenderungsFormular extends JFrame {
   } catch (Exception e) {}
 
     Ablesung newZaehlerdatum = new Ablesung(
+      data.getId(),
       zaehlernummer,
       datum,
-      new Kunde(),
+      data.getKunde(),
       kommentar,
       eingebaut,
       Integer.valueOf(zaehlerstand)
     );
-    int index = datenModel.getData().indexOf(data);
-    String s = PlausibilitaetsPruefung.machePlausabilitaetspruefung(zaehlernummer,
+    String s = PlausibilitaetsPruefung.machePlausabilitaetspruefung("",zaehlernummer,
     zaehlerstandText.getText(),eingebaut,datum);
     if(s.equals("")){
-      datenModel.updateEntry(index ,newZaehlerdatum);
+      String url = "http://localhost:8080";
+	    Client client = ClientBuilder.newClient();
+	    WebTarget target = client.target(url);
+      Response re = target.path("ablesungen").request(MediaType.APPLICATION_JSON).accept(MediaType.TEXT_PLAIN)
+				.put(Entity.entity(newZaehlerdatum, MediaType.APPLICATION_JSON));
       parent.update();
+      System.out.println(re.getStatus());
       setVisible(false);
     }else{
       showErrorWindow(s);
