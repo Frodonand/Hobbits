@@ -298,6 +298,8 @@ public class ZaehlerEingabeFormular extends JFrame {
         kundenListe = getKundenListe();
         kundeDropdown.setModel(new DefaultComboBoxModel<>(kundenListe.toArray(new Kunde[0])));
         kundeDropdown.setSelectedIndex(kundenListe.size()-1);
+        kundefilterDropdown.setModel(new DefaultComboBoxModel<>(kundenListe.toArray(new Kunde[0])));
+
 
     }
 
