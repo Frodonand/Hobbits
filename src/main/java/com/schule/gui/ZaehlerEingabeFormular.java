@@ -79,7 +79,9 @@ public class ZaehlerEingabeFormular extends JFrame {
         JLabel kommentar = new JLabel("Kommentar");
 
         JButton speichernBtn = new JButton("Speichern");
-        JButton anzeigenBtn = new JButton("Daten anzeigen");
+        JButton anzeigenBtn = new JButton("Ablesungen anzeigen");
+        JButton kundenAnzeigenBtn = new JButton("Kunden anzeigen");
+
         JButton kundenBtn = new JButton("Kunde anlegen");
 
         kundeDropdown = new JComboBox<Kunde>();
@@ -102,11 +104,18 @@ public class ZaehlerEingabeFormular extends JFrame {
         grid.add(kommentarText);
         grid.add(kundenBtn);
         con.add(speichernBtn, BorderLayout.SOUTH);
-        con.add(anzeigenBtn, BorderLayout.EAST);
 
+
+        GridLayout gridLayoutEast = new GridLayout(2, 1);
+        JPanel gridEast = new JPanel();
+        gridEast.setLayout(gridLayoutEast);
+        gridEast.add(anzeigenBtn);
+        gridEast.add(kundenAnzeigenBtn);
+        con.add(gridEast, BorderLayout.EAST);
+
+        kundenAnzeigenBtn.addActionListener(e-> kundenDatenFensteranzeigen());
         anzeigenBtn.addActionListener(e -> datenFensteranzeigen());
         speichernBtn.addActionListener(e -> saveZaehler());
-        List<Kunde> kundenDaten = null;
         kundenBtn.addActionListener((e -> kundenFensteranzeigen()));
         setSize(700, 300);
         setVisible(true);
@@ -124,7 +133,7 @@ public class ZaehlerEingabeFormular extends JFrame {
 
     private List<Kunde> getKundenListe(){
         Response kundenResponse = target.path("kunden").request().accept(MediaType.APPLICATION_JSON).get();
-        kundenListe = kundenResponse.readEntity(new GenericType<>() {});
+        kundenListe = kundenResponse.readEntity(new GenericType<List<Kunde>>() {});
         return kundenListe;
     }
 
@@ -134,6 +143,12 @@ public class ZaehlerEingabeFormular extends JFrame {
                 "",
                 "YOU SHALL NOT PASS!", JOptionPane.INFORMATION_MESSAGE,
                 imageIcon);
+    }
+
+    private void kundenDatenFensteranzeigen() {
+        Builder builder = target.path("kunden")
+            .request().accept(MediaType.APPLICATION_JSON);
+        new KundenDatenFenster(builder);
     }
 
     private void kundenFensteranzeigen() {
