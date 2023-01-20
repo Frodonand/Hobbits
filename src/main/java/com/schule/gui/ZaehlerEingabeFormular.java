@@ -46,10 +46,11 @@ public class ZaehlerEingabeFormular extends JFrame {
     private final JDatePanelImpl datePanelVon;
     private final JDatePanelImpl datePanelBis;
     private JComboBox<Kunde> kundeDropdown;
+    private JComboBox<Kunde> kundefilterDropdown;
 
     public ZaehlerEingabeFormular() {
         super("Zählerdaten erfassen");
-        GridLayout gridLayout = new GridLayout(8, 2);
+        GridLayout gridLayout = new GridLayout(6, 2);
 
     UtilDateModel model = new UtilDateModel();
     Properties p = new Properties();
@@ -104,6 +105,10 @@ public class ZaehlerEingabeFormular extends JFrame {
         kundeDropdown.setModel(new DefaultComboBoxModel<>(kundenListe.toArray(new Kunde[0])));
         kundeDropdown.setSelectedIndex(-1);
 
+        kundefilterDropdown = new JComboBox<Kunde>();
+        kundefilterDropdown.setModel(new DefaultComboBoxModel<>(kundenListe.toArray(new Kunde[0])));
+        kundefilterDropdown.setSelectedIndex(-1);
+
         //Hinzufügen der Components zum Grid
         con.add(grid, BorderLayout.CENTER);
         grid.add(kundeLabel);
@@ -118,11 +123,10 @@ public class ZaehlerEingabeFormular extends JFrame {
         grid.add(zaehlerstandText);
         grid.add(kommentar);
         grid.add(kommentarText);
-        grid.add(kundenBtn);
         con.add(speichernBtn, BorderLayout.SOUTH);
         con.add(anzeigenBtn, BorderLayout.EAST);
         con.add(gridUnten, BorderLayout.SOUTH);
-        gridUnten.add(new JLabel(""));
+        gridUnten.add(kundenBtn);
         gridUnten.add(speichernBtn);
         gridUnten.add(new JLabel(""));
         gridUnten.add(new JLabel(""));
@@ -131,7 +135,7 @@ public class ZaehlerEingabeFormular extends JFrame {
         gridUnten.add(datumFilterLabel);
         gridUnten.add(datePickerVon);
         gridUnten.add(datePickerBis);
-        gridUnten.add(new JLabel(""));
+        gridUnten.add(kundefilterDropdown);
         gridUnten.add(gefiltertBtn);
 
 
@@ -180,24 +184,33 @@ public class ZaehlerEingabeFormular extends JFrame {
     private void datenFenstergefiltertAnzeigen() {
         final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-        String url = "http://localhost:8080";
-        Client client = ClientBuilder.newClient();
-        WebTarget target = client.target(url);
-
         Date dateVon = (Date) datePickerVon.getModel().getValue();
-        LocalDate datumVon = dateVon.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
+
         Date dateBis = (Date) datePickerBis.getModel().getValue();
-        LocalDate datumBis = dateBis.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
 
-        String beginnString = datumVon.format(dateFormatter);
-        String endeString = datumBis.format(dateFormatter);
+        Kunde filterKunde = (Kunde) kundefilterDropdown.getSelectedItem();
 
-        Response re = target.path("ablesungen").queryParam("kunde", "").queryParam("beginn", beginnString)
-                .queryParam("ende", endeString).request().accept(MediaType.APPLICATION_JSON).get();
+        WebTarget target1 = target.path("ablesungen");
+        if(filterKunde != null) {
+            String gefiltertId = filterKunde.getId().toString();
+            target1 = target1.queryParam("kunde", gefiltertId);
+        }
+        if(dateVon != null){
+            LocalDate datumVon = dateVon.toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+            String beginnString = datumVon.format(dateFormatter);
+            target1 = target1.queryParam("beginn", beginnString);
+        }
+        if(dateBis != null){
+            LocalDate datumBis = dateBis.toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+            String endeString = datumBis.format(dateFormatter);
+            target1 = target1.queryParam("ende", endeString);
+        }
+        Builder builder = target1.request().accept(MediaType.APPLICATION_JSON);
+        new DatenFenster(builder);
 
     }
 
