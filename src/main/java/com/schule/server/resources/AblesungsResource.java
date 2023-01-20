@@ -142,11 +142,11 @@ public class AblesungsResource {
                 }
                 if(!beginnDate.equals(LocalDate.MIN)){
                     final LocalDate finalBeginnDate = beginnDate;
-                    stream = stream.filter(e-> e.getDatum().isAfter(finalBeginnDate));
+                    stream = stream.filter(e-> (e.getDatum().isAfter(finalBeginnDate)||e.getDatum().equals(finalBeginnDate)));
                 }
                 if(!endeDate.equals(LocalDate.MIN)){
                     final LocalDate finalendeDate = endeDate;
-                    stream = stream.filter(e-> e.getDatum().isBefore(finalendeDate));
+                    stream = stream.filter(e-> e.getDatum().isBefore(finalendeDate)||e.getDatum().equals(finalendeDate));
                 }
     
                 List<Ablesung> flat = stream.collect(Collectors.toList());
