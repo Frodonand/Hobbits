@@ -1,6 +1,6 @@
 package com.schule.gui;
 
-import com.schule.data.Ablesung;
+import com.schule.data.Kunde;
 
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
@@ -23,18 +23,17 @@ import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyAdapter;
-import java.time.LocalDate;
 import java.awt.Container;
 import java.util.List;
 
-public class DatenFenster extends JFrame{
+public class KundenDatenFenster extends JFrame{
 
     private JTable datenanzeigeFeld;
     private JScrollPane sp;
-    private List<Ablesung> dataList;
+    private List<Kunde> dataList;
     private Builder request;
 
-    public DatenFenster(Builder builder){
+    public KundenDatenFenster(Builder builder){
         request = builder;
         datenanzeigeFeld = new JTable() {
             private static final long serialVersionUID = 1L;
@@ -77,68 +76,41 @@ public class DatenFenster extends JFrame{
     }
 
     protected void openEditor(int index) {
-        Ablesung a = dataList.get(index);
-        if(a.getKunde()!=null){
-            new ZaehlerAenderungsFormular(a,this);
-        }else{
-            JOptionPane.showMessageDialog(this, "Die Zählerdaten können nicht verändertwerden, da kein Kunde vorhanden ist.");
-        }
+        Kunde a = dataList.get(index);
+        new KundeAendernFenster(this,a);
     }
 
     public void update(){
         Response re = request.get();
-        Object[][] allData = new Object[0][6];
-        if(re.getStatus()==200){
-        this.dataList = re.readEntity(new GenericType<List<Ablesung>>() {
+        this.dataList = re.readEntity(new GenericType<List<Kunde>>() {
 		});
         
-        allData = new Object[dataList.size()][6];
+        Object[][] allData = new Object[dataList.size()][7];
     
         for (int i = 0; i<dataList.size();i++) {
-            Ablesung curr = dataList.get(i);
-            Object[] o = new Object[6];
-            if(curr.getKunde()!=null){
-                o[0]= curr.getKunde().getName() + ", " + curr.getKunde().getVorname();
-            }else{
-                o[0]= null;
-            }
-            o[1]= curr.getZaehlernummer();
-            o[3]= curr.isNeuEingebaut();
-            o[4]= curr.getZaehlerstand();
-            o[5]= curr.getKommentar();
-            LocalDate date = curr.getDatum();
-            if(date == null){
-                o[2]= null;
-            }else{
-                o[2]= date.toString();
-            }
+            Kunde curr = dataList.get(i);
+            Object[] o = new Object[3];
+            o[0]= curr.getId();
+            o[1]= curr.getName();
+            o[2]= curr.getVorname();
             allData[i]=o;
-            }
         }
+    
         String[] headers = {
-            "Name, Vorname",
-             "Zählernummer",
-             "Datum",
-             "Neu eingebaut",
-             "Zählerstand" ,
-             "Kommentar"
-         };
-         datenanzeigeFeld.setModel(new DefaultTableModel(allData,headers));
+           "Kundennummer",
+            "Name",
+            "Vorname"
+        };
+        datenanzeigeFeld.setModel(new DefaultTableModel(allData,headers));
     }
 
     private void removeEntry(int index){
-        Ablesung curr = dataList.get(index);
+        Kunde curr = dataList.get(index);
         String s = "";
-        if(curr.getKunde() != null){
-            s += "Kundennummer: " +  curr.getKunde().getId() + "\n";
-        }else{
-            s += "Kundennummer: \n";
-        }
-        s += "Zählernummer: " +  curr.getZaehlernummer() + "\n";
-        s += "Datum: " +  curr.getDatum() + "\n";
-        s += "Neu eingebaut: " +  curr.isNeuEingebaut() + "\n";
-        s += "Zählerstand: " +  curr.getZaehlerstand() + "\n";
-        s += "Kommentar: " +  curr.getKommentar() + "\n";
+            
+        s += "Kundennummer: " +  curr.getId() + "\n";
+        s += "Name: " +  curr.getName() + "\n";
+        s += "Vorname: " +  curr.getVorname() + "\n";
 
 
         int dialog = JOptionPane.showConfirmDialog(this, "Soll der Datensatz mit diesen Werten wirklich gelöscht werden?\n" + s,"Werte überprüfen",JOptionPane.YES_NO_OPTION);
@@ -148,12 +120,12 @@ public class DatenFenster extends JFrame{
             String url = "http://localhost:8080";
 	        Client client = ClientBuilder.newClient();
 	        WebTarget target = client.target(url);
-            target.path("ablesungen".concat("/").concat(curr.getId().toString())).request()
+            target.path("kunden".concat("/").concat(curr.getId().toString())).request()
             .accept(MediaType.APPLICATION_JSON).delete();
             //Ablesung result = re.readEntity(Ablesung.class);
         JOptionPane.showMessageDialog(this, "Die Zählerdaten wurden gelöscht.");
-        dataList.remove(index);
         update();
     }
     }
-    }
+
+}

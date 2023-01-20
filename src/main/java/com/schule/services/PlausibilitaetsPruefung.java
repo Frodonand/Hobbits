@@ -2,6 +2,7 @@ package com.schule.services;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
@@ -10,17 +11,17 @@ import javax.swing.JOptionPane;
 
 public class PlausibilitaetsPruefung {
     
-    public static String machePlausabilitaetspruefung(String kundenummerText, String zaehlernummerText,
-    String zaehlerstandText,boolean eingebautCheck, Date date)  {
+    public static String machePlausabilitaetspruefung(String zaehlernummerText,
+    String zaehlerstandText,boolean eingebautCheck, LocalDate date)  {
         String s ="";
-        try{
+        /*try{
             Integer.parseInt(kundenummerText);
             if (kundenummerText.length() != 8) {
                 s +="Kundennummer zu lang oder zu kurz \n";
             }
         }catch(NumberFormatException e){
             s+="Kundennummer muss eine ganze Zahl sein \n";
-        }
+        }*/
         if (zaehlernummerText.length() != 8) {
             s += "Zählernummer zu lang oder zu kurz\n";
         }else if (!checkIfStringIsASCII(zaehlernummerText)) {
@@ -60,12 +61,11 @@ public class PlausibilitaetsPruefung {
       return true;
     }
     
-    @SuppressWarnings("deprecation")
-    private static boolean checkIfDateIsInvalid(Date date) {
+    private static boolean checkIfDateIsInvalid(LocalDate date) {
       boolean isInvalidDate = false;
       SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
-      String enteredDay = date.getDay() + "";
-      String enteredMonth = date.getMonth() + 1 + "/";
+      String enteredDay = date.getDayOfMonth() + "";
+      String enteredMonth = date.getMonthValue() + 1 + "/";
       String enteredYear = date.getYear() + "/";
       try{
       String enteredDateStringAsString = enteredYear + enteredMonth + enteredDay;
