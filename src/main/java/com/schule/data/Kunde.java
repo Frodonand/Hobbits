@@ -43,6 +43,6 @@ public class Kunde {
     
     @Override
     public String toString() {
-        return id.toString();
+        return (vorname + " " + name);
     }
 }
