@@ -19,6 +19,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -35,28 +36,43 @@ public class ZaehlerEingabeFormular extends JFrame {
     private final JTextField zaehlerstandText = new JTextField();
     private final JTextField kommentarText = new JTextField();
     private final JDatePickerImpl datePicker;
+    private final JDatePickerImpl datePickerVon;
+    private final JDatePickerImpl datePickerBis;
     private final JDatePanelImpl datePanel;
     private final String url = "http://localhost:8080";
     private final Client client = ClientBuilder.newClient();
     private final WebTarget target = client.target(url);
     private List<Kunde> kundenListe = getKundenListe();
-
+    private final JDatePanelImpl datePanelVon;
+    private final JDatePanelImpl datePanelBis;
     private JComboBox<Kunde> kundeDropdown;
+    private JComboBox<Kunde> kundefilterDropdown;
 
     public ZaehlerEingabeFormular() {
         super("Zählerdaten erfassen");
-        GridLayout gridLayout = new GridLayout(8, 2);
+        GridLayout gridLayout = new GridLayout(6, 2);
 
-        UtilDateModel model = new UtilDateModel();
-        Properties p = new Properties();
-        p.put("text.today", "Today");
-        p.put("text.month", "Month");
-        p.put("text.year", "Year");
-        datePanel = new JDatePanelImpl(model, p);
-        datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
-        datePicker.getModel().setSelected(true);
-        addWindowListener(
-                new WindowAdapter() {
+    UtilDateModel model = new UtilDateModel();
+    Properties p = new Properties();
+    p.put("text.today", "Today");
+    p.put("text.month", "Month");
+    p.put("text.year", "Year");
+    datePanel = new JDatePanelImpl(model, p);
+    datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+    datePicker.getModel().setSelected(true);
+
+        UtilDateModel modelVon = new UtilDateModel();
+        datePanelVon = new JDatePanelImpl(modelVon, p);
+        datePickerVon = new JDatePickerImpl(datePanelVon, new DateLabelFormatter());
+        datePickerVon.getModel().setSelected(true);
+
+        UtilDateModel modelBis = new UtilDateModel();
+        datePanelBis = new JDatePanelImpl(modelBis, p);
+        datePickerBis = new JDatePickerImpl(datePanelBis, new DateLabelFormatter());
+        datePickerBis.getModel().setSelected(true);
+
+    addWindowListener(
+      new WindowAdapter() {
 
                     @Override
                     public void windowClosing(final WindowEvent e) {
@@ -68,6 +84,7 @@ public class ZaehlerEingabeFormular extends JFrame {
         con.setLayout(new BorderLayout());
         JPanel grid = new JPanel();
         grid.setLayout(gridLayout);
+        JPanel gridUnten = new JPanel(new GridLayout(4,3));
 
         //Generieren der Labels, Buttons und Textfields
         JLabel kundeLabel = new JLabel("Kunde");
@@ -77,14 +94,20 @@ public class ZaehlerEingabeFormular extends JFrame {
         JLabel eingebaut = new JLabel("neu eingebaut");
         JLabel zaehlerstand = new JLabel("Zählerstand");
         JLabel kommentar = new JLabel("Kommentar");
+        JLabel datumFilterLabel = new JLabel("Filter Datum von...bis: ");
 
         JButton speichernBtn = new JButton("Speichern");
         JButton anzeigenBtn = new JButton("Daten anzeigen");
+        JButton gefiltertBtn = new JButton("gefilterte Daten anzeigen");
         JButton kundenBtn = new JButton("Kunde anlegen");
 
         kundeDropdown = new JComboBox<Kunde>();
         kundeDropdown.setModel(new DefaultComboBoxModel<>(kundenListe.toArray(new Kunde[0])));
         kundeDropdown.setSelectedIndex(-1);
+
+        kundefilterDropdown = new JComboBox<Kunde>();
+        kundefilterDropdown.setModel(new DefaultComboBoxModel<>(kundenListe.toArray(new Kunde[0])));
+        kundefilterDropdown.setSelectedIndex(-1);
 
         //Hinzufügen der Components zum Grid
         con.add(grid, BorderLayout.CENTER);
@@ -100,14 +123,27 @@ public class ZaehlerEingabeFormular extends JFrame {
         grid.add(zaehlerstandText);
         grid.add(kommentar);
         grid.add(kommentarText);
-        grid.add(kundenBtn);
         con.add(speichernBtn, BorderLayout.SOUTH);
         con.add(anzeigenBtn, BorderLayout.EAST);
+        con.add(gridUnten, BorderLayout.SOUTH);
+        gridUnten.add(kundenBtn);
+        gridUnten.add(speichernBtn);
+        gridUnten.add(new JLabel(""));
+        gridUnten.add(new JLabel(""));
+        gridUnten.add(new JLabel(""));
+        gridUnten.add(new JLabel(""));
+        gridUnten.add(datumFilterLabel);
+        gridUnten.add(datePickerVon);
+        gridUnten.add(datePickerBis);
+        gridUnten.add(kundefilterDropdown);
+        gridUnten.add(gefiltertBtn);
+
 
         anzeigenBtn.addActionListener(e -> datenFensteranzeigen());
         speichernBtn.addActionListener(e -> saveZaehler());
         List<Kunde> kundenDaten = null;
         kundenBtn.addActionListener((e -> kundenFensteranzeigen()));
+        gefiltertBtn.addActionListener(e -> datenFenstergefiltertAnzeigen());
         setSize(700, 300);
         setVisible(true);
 
@@ -143,6 +179,39 @@ public class ZaehlerEingabeFormular extends JFrame {
         Builder builder = target.path("ablesungen/vorZweiJahrenHeute")
             .request().accept(MediaType.APPLICATION_JSON);
         new DatenFenster(builder);
+    }
+
+    private void datenFenstergefiltertAnzeigen() {
+        final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        Date dateVon = (Date) datePickerVon.getModel().getValue();
+
+        Date dateBis = (Date) datePickerBis.getModel().getValue();
+
+        Kunde filterKunde = (Kunde) kundefilterDropdown.getSelectedItem();
+
+        WebTarget target1 = target.path("ablesungen");
+        if(filterKunde != null) {
+            String gefiltertId = filterKunde.getId().toString();
+            target1 = target1.queryParam("kunde", gefiltertId);
+        }
+        if(dateVon != null){
+            LocalDate datumVon = dateVon.toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+            String beginnString = datumVon.format(dateFormatter);
+            target1 = target1.queryParam("beginn", beginnString);
+        }
+        if(dateBis != null){
+            LocalDate datumBis = dateBis.toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+            String endeString = datumBis.format(dateFormatter);
+            target1 = target1.queryParam("ende", endeString);
+        }
+        Builder builder = target1.request().accept(MediaType.APPLICATION_JSON);
+        new DatenFenster(builder);
+
     }
 
     private void saveZaehler() {
