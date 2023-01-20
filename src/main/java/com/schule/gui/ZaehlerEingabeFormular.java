@@ -97,9 +97,11 @@ public class ZaehlerEingabeFormular extends JFrame {
         JButton speichernBtn = new JButton("Speichern");
         JButton anzeigenBtn = new JButton("Ablesungen anzeigen");
         JButton kundenAnzeigenBtn = new JButton("Kunden anzeigen");
+        JButton ablesungenZweiJahreBtn = new JButton("Ablesungen letzten 2 Jahre");
 
         JButton gefiltertBtn = new JButton("gefilterte Daten anzeigen");
         JButton kundenBtn = new JButton("Kunde anlegen");
+
 
         kundeDropdown = new JComboBox<Kunde>();
         kundeDropdown.setModel(new DefaultComboBoxModel<>(kundenListe.toArray(new Kunde[0])));
@@ -126,11 +128,13 @@ public class ZaehlerEingabeFormular extends JFrame {
         con.add(speichernBtn, BorderLayout.SOUTH);
 
 
-        GridLayout gridLayoutEast = new GridLayout(2, 1);
+        GridLayout gridLayoutEast = new GridLayout(3, 1);
         JPanel gridEast = new JPanel();
         gridEast.setLayout(gridLayoutEast);
         gridEast.add(anzeigenBtn);
+        gridEast.add(ablesungenZweiJahreBtn);
         gridEast.add(kundenAnzeigenBtn);
+
         con.add(gridEast, BorderLayout.EAST);
         con.add(gridUnten, BorderLayout.SOUTH);
         gridUnten.add(kundenBtn);
@@ -145,7 +149,7 @@ public class ZaehlerEingabeFormular extends JFrame {
         gridUnten.add(kundefilterDropdown);
         gridUnten.add(gefiltertBtn);
 
-
+        ablesungenZweiJahreBtn.addActionListener(e -> kundenDatenFensterZweiJahreAnzeigen());
         kundenAnzeigenBtn.addActionListener(e-> kundenDatenFensteranzeigen());
         anzeigenBtn.addActionListener(e -> datenFensteranzeigen());
         speichernBtn.addActionListener(e -> saveZaehler());
@@ -183,6 +187,12 @@ public class ZaehlerEingabeFormular extends JFrame {
         Builder builder = target.path("kunden")
             .request().accept(MediaType.APPLICATION_JSON);
         new KundenDatenFenster(builder);
+    }
+
+    private void kundenDatenFensterZweiJahreAnzeigen() {
+        Builder builder = target.path("ablesungen/vorZweiJahrenHeute")
+            .request().accept(MediaType.APPLICATION_JSON);
+        new DatenFenster(builder);
     }
 
     private void kundenFensteranzeigen() {
