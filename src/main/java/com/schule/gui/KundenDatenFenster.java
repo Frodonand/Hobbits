@@ -82,10 +82,8 @@ public class KundenDatenFenster extends JFrame{
 
     public void update(){
         Response re = request.get();
-        System.out.println(re.getStatus());
         this.dataList = re.readEntity(new GenericType<List<Kunde>>() {
 		});
-        System.out.println(dataList);
         
         Object[][] allData = new Object[dataList.size()][7];
     

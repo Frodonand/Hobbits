@@ -6,7 +6,6 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 
 import javax.swing.*;
 import java.awt.*;
@@ -72,10 +71,9 @@ public class KundeAendernFenster extends JFrame {
         String url = "http://localhost:8080";
         Client client = ClientBuilder.newClient();
         WebTarget target = client.target(url);
-        Response re = target.path("kunden").request(MediaType.APPLICATION_JSON).accept(MediaType.TEXT_PLAIN)
+        target.path("kunden").request(MediaType.APPLICATION_JSON).accept(MediaType.TEXT_PLAIN)
                 .put(Entity.entity(kunde, MediaType.APPLICATION_JSON));
         parent.update();
-        System.out.println(re.getStatus());
         setVisible(false);
 
     }

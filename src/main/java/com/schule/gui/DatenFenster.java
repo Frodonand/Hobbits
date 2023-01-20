@@ -91,7 +91,6 @@ public class DatenFenster extends JFrame{
         if(re.getStatus()==200){
         this.dataList = re.readEntity(new GenericType<List<Ablesung>>() {
 		});
-        System.out.println(dataList);
         
         allData = new Object[dataList.size()][6];
     

@@ -33,7 +33,6 @@ public class ZaehlerEingabeFormular extends JFrame {
     private final JCheckBox eingebautCheck = new JCheckBox();
     private final JTextField zaehlerstandText = new JTextField();
     private final JTextField kommentarText = new JTextField();
-    private JTextField datenKundennummer = new JTextField();
     private final JDatePickerImpl datePicker;
     private final JDatePickerImpl datePickerVon;
     private final JDatePickerImpl datePickerBis;
@@ -264,7 +263,6 @@ public class ZaehlerEingabeFormular extends JFrame {
         String s = PlausibilitaetsPruefung.machePlausabilitaetspruefung(zaehlernummer,
                 zaehlerstandText.getText(), eingebaut, datum);
         boolean exists = false;
-        // TODO: Dupletten Prüfung funktioniert nicht
         Response re = target.path("ablesungen")
                 .request().accept(MediaType.APPLICATION_JSON).get();
         List<Ablesung> zaehlerdaten = re.readEntity(new GenericType<List<Ablesung>>() {
