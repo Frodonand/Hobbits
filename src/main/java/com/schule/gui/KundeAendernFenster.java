@@ -23,11 +23,11 @@ public class KundeAendernFenster extends JFrame {
     private List<Kunde> dataList;
     private ZaehlerDatenModel persistance;
 
-    ZaehlerEingabeFormular parent;
+    private KundenDatenFenster parent;
 
-    Kunde kunde;
+    private Kunde kunde;
 
-    public KundeAendernFenster(ZaehlerEingabeFormular parent, Kunde kunde) {
+    public KundeAendernFenster(KundenDatenFenster parent, Kunde kunde) {
         super("Kunden aendern");
         this.parent = parent;
         this.kunde=kunde;
@@ -88,7 +88,6 @@ public class KundeAendernFenster extends JFrame {
         parent.update();
         System.out.println(re.getStatus());
         setVisible(false);
-
 
     }
 }

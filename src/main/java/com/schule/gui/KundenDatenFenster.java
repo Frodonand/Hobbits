@@ -79,7 +79,7 @@ public class KundenDatenFenster extends JFrame{
 
     protected void openEditor(int index) {
         Kunde a = dataList.get(index);
-        JOptionPane.showMessageDialog(this, "Die Zählerdaten können nicht verändertwerden, da kein Kunde vorhanden ist.");
+        new KundeAendernFenster(this,a);
     }
 
     public void update(){
