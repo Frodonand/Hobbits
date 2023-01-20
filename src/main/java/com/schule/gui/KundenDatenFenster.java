@@ -1,7 +1,6 @@
 package com.schule.gui;
 
 import com.schule.data.Kunde;
-import com.schule.model.ZaehlerDatenModel;
 
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
@@ -24,7 +23,6 @@ import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyAdapter;
-import java.time.LocalDate;
 import java.awt.Container;
 import java.util.List;
 

@@ -1,8 +1,6 @@
 package com.schule.gui;
 
 import com.schule.data.Ablesung;
-import com.schule.data.Ablesung;
-import com.schule.model.ZaehlerDatenModel;
 
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
@@ -89,18 +87,19 @@ public class DatenFenster extends JFrame{
 
     public void update(){
         Response re = request.get();
-        System.out.println(re.getStatus());
+        Object[][] allData = new Object[0][6];
+        if(re.getStatus()==200){
         this.dataList = re.readEntity(new GenericType<List<Ablesung>>() {
 		});
         System.out.println(dataList);
         
-        Object[][] allData = new Object[dataList.size()][7];
+        allData = new Object[dataList.size()][6];
     
         for (int i = 0; i<dataList.size();i++) {
             Ablesung curr = dataList.get(i);
             Object[] o = new Object[6];
             if(curr.getKunde()!=null){
-                o[0]= curr.getKunde().getId();
+                o[0]= curr.getKunde().getName() + ", " + curr.getKunde().getVorname();
             }else{
                 o[0]= null;
             }
@@ -115,17 +114,17 @@ public class DatenFenster extends JFrame{
                 o[2]= date.toString();
             }
             allData[i]=o;
+            }
         }
-    
         String[] headers = {
-           "Kundennummer",
-            "Zählernummer",
-            "Datum",
-            "Neu eingebaut",
-            "Zählerstand" ,
-            "Kommentar"
-        };
-        datenanzeigeFeld.setModel(new DefaultTableModel(allData,headers));
+            "Name, Vorname",
+             "Zählernummer",
+             "Datum",
+             "Neu eingebaut",
+             "Zählerstand" ,
+             "Kommentar"
+         };
+         datenanzeigeFeld.setModel(new DefaultTableModel(allData,headers));
     }
 
     private void removeEntry(int index){

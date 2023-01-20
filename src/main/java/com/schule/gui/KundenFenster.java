@@ -1,33 +1,20 @@
 package com.schule.gui;
 
 import com.schule.data.Kunde;
-import com.schule.model.ZaehlerDatenModel;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.glassfish.hk2.api.PostConstruct;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.net.http.HttpClient;
-import java.util.List;
 
 
 public class KundenFenster extends JFrame {
     private final JTextField vornameText;
     private final JTextField nameText;
-
-    private JTable datenanzeigeFeld;
-    private JScrollPane sp;
-    private List<Kunde> dataList;
-    private ZaehlerDatenModel persistance;
 
 ZaehlerEingabeFormular parent;
 
@@ -36,9 +23,6 @@ ZaehlerEingabeFormular parent;
         this.parent=parent;
         GridLayout gridLayout = new GridLayout(4, 2);
 
-        persistance = ZaehlerDatenModel.getInstance();
-
-        sp = new JScrollPane(datenanzeigeFeld);
         final Container con = getContentPane();
         con.setLayout(new BorderLayout());
         JPanel grid = new JPanel();

@@ -2,8 +2,6 @@ package com.schule.gui;
 
 import com.schule.data.Ablesung;
 import com.schule.data.DateLabelFormatter;
-import com.schule.data.Kunde;
-import com.schule.model.ZaehlerDatenModel;
 import com.schule.services.PlausibilitaetsPruefung;
 
 import jakarta.ws.rs.client.Client;

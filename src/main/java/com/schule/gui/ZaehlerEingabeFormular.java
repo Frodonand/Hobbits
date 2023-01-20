@@ -3,12 +3,10 @@ package com.schule.gui;
 import com.schule.data.DateLabelFormatter;
 import com.schule.data.Kunde;
 import com.schule.data.Ablesung;
-import com.schule.model.ZaehlerDatenModel;
 import com.schule.services.PlausibilitaetsPruefung;
 
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.client.Invocation.Builder;
 import jakarta.ws.rs.core.GenericType;

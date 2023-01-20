@@ -1,7 +1,6 @@
 package com.schule.gui;
 
 import com.schule.data.Kunde;
-import com.schule.model.ZaehlerDatenModel;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -11,17 +10,10 @@ import jakarta.ws.rs.core.Response;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
-
 
 public class KundeAendernFenster extends JFrame {
     private final JTextField vornameText;
     private final JTextField nameText;
-
-    private JTable datenanzeigeFeld;
-    private JScrollPane sp;
-    private List<Kunde> dataList;
-    private ZaehlerDatenModel persistance;
 
     private KundenDatenFenster parent;
 
@@ -33,9 +25,6 @@ public class KundeAendernFenster extends JFrame {
         this.kunde=kunde;
         GridLayout gridLayout = new GridLayout(4, 2);
 
-        persistance = ZaehlerDatenModel.getInstance();
-
-        sp = new JScrollPane(datenanzeigeFeld);
         final Container con = getContentPane();
         con.setLayout(new BorderLayout());
         JPanel grid = new JPanel();
