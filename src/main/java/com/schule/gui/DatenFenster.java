@@ -157,5 +157,4 @@ public class DatenFenster extends JFrame{
         update();
     }
     }
-
-}
+    }

@@ -45,4 +45,8 @@ public class ZaehlerDatenModel {
     public Ablesung getEntry(int index) {
         return data.get(index);
     }
+/*
+    public int getIndex(Zaehlerdatum curr) {
+        return data.indexOf(curr);
+    }*/
 }

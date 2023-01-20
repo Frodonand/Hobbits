@@ -33,6 +33,7 @@ public class ZaehlerEingabeFormular extends JFrame {
     private final JCheckBox eingebautCheck = new JCheckBox();
     private final JTextField zaehlerstandText = new JTextField();
     private final JTextField kommentarText = new JTextField();
+    private JTextField datenKundennummer = new JTextField();
     private final JDatePickerImpl datePicker;
     private final JDatePickerImpl datePickerVon;
     private final JDatePickerImpl datePickerBis;
