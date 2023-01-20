@@ -269,7 +269,12 @@ public class ZaehlerEingabeFormular extends JFrame {
         List<Ablesung> zaehlerdaten = re.readEntity(new GenericType<List<Ablesung>>() {
         });
         for (Ablesung curr : zaehlerdaten) {
-            if (newAblesung.equals(curr)) {
+            if (newAblesung.getDatum().equals(curr.getDatum()) &&
+                newAblesung.getZaehlernummer().equals(curr.getZaehlernummer()) &&
+                newAblesung.getZaehlerstand().equals(curr.getZaehlerstand())&&
+                newAblesung.getKunde().equals(curr.getKunde())&&
+                newAblesung.isNeuEingebaut()== curr.isNeuEingebaut()&&
+                newAblesung.getKommentar().equals(curr.getKommentar())) {
                 exists = true;
             }
         }
