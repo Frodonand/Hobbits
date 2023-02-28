@@ -40,7 +40,7 @@ public class KundenResource {
 
             if(kundeOptional.isPresent()){
                 Kunde kunde = kundeOptional.get();
-                List<Ablesung> kundenAblesung = ablesungsModel.getAblesungsList().stream()
+                List<Ablesung> kundenAblesung = ablesungsModel.getAll().stream()
                     .filter(k -> k.getKunde()!=null && k.getKunde().getId().equals(uuid))
                     .peek(e-> e.setKunde(null))
                     .collect(Collectors.toList());

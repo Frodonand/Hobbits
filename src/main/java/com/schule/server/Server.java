@@ -27,37 +27,21 @@ public class Server {
         new JSONPersistance<Ablesung>(Ablesung.class,"target/server/Ablesung.json");
 
     public static void main(String[] args) {
-        startServer("http://localhost:8080/", true);
+        startServer("http://localhost:8080/");
         //stopServer(true);
     }
 
-    public static void startServer(String url, boolean loadFromFile){
+    public static void startServer(String url){
         if(server == null){
-            if(loadFromFile){
-                HashMap<UUID,List<Ablesung>> ablesungenMap = new HashMap<>();
-                List<Kunde> alleKunden = kundenPersistance.load();
-                for(Kunde k : alleKunden){
-                    ablesungenMap.put(k.getId(),new ArrayList<Ablesung>());
-                }
-                kundenModel.setData(alleKunden);
-
-                List<Ablesung> alleAblesungen = ablesungenPersistance.load();
-                ablesungModel.setAblesungsList(alleAblesungen);
-                }
-            }
             final ResourceConfig rc = new ResourceConfig().packages(PACK);
             server = JdkHttpServerFactory.createHttpServer(
             URI.create(url),
             rc
         );
+        }
     }
 
-    public static void stopServer(boolean saveToFile){
-        if(saveToFile){
-            kundenPersistance.save(kundenModel.getData());
-            List<Ablesung> ablesungenToSave = ablesungModel.getAblesungsList();
-            ablesungenPersistance.save(ablesungenToSave);
-        }
+    public static void stopServer(){
         if(server != null){
         server.stop(0);   
         server = null;

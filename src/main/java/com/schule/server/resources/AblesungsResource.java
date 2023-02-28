@@ -31,12 +31,8 @@ public class AblesungsResource {
     public Response deleteAblesung(@PathParam("id") String id) {
         try{
             UUID uuid = UUID.fromString(id);
-            Optional<Ablesung> flat = ablesungsModel.getAblesungsList().stream()
-                    .filter(e->e.getId().equals(uuid))
-                    .findFirst();
-            if(flat.isPresent()){
-                Ablesung a = flat.get();
-                ablesungsModel.getAblesungsList().removeIf(e -> e.getId().equals(a.getId()));
+            Ablesung a = ablesungsModel.get(uuid);
+            if(ablesungsModel.delete(uuid)){
                 return Response.status(Response.Status.OK).entity(a).build();
             }
         }catch (IllegalArgumentException e){
@@ -51,11 +47,9 @@ public class AblesungsResource {
     public Response getAblesungById(@PathParam("id") String id) {
         try{
             UUID uuid = UUID.fromString(id);
-            Optional<Ablesung> flat = ablesungsModel.getAblesungsList().stream()
-                    .filter(e->e.getId().equals(uuid))
-                    .findFirst();
-            if(flat.isPresent()){
-                Ablesung a = flat.get();
+
+            Ablesung a = ablesungsModel.get(uuid);
+            if(a!=null){
                 return Response.status(Response.Status.OK).entity(a).build();
             }
         }catch (IllegalArgumentException e){
@@ -69,7 +63,7 @@ public class AblesungsResource {
     @GET
     @Path("/vorZweiJahrenHeute")
     public Response getAblesungenTwoYears() {
-        List<Ablesung> flat = ablesungsModel.getAblesungsList().stream()
+        List<Ablesung> flat = ablesungsModel.getAll().stream()
                 .filter(e -> e.getDatum().getYear() >= LocalDate.now().getYear() - 2)
                 .collect(Collectors.toList());
         return Response.status(Response.Status.OK).entity(flat).build();
@@ -83,7 +77,7 @@ public class AblesungsResource {
             if (!kundenModel.getData().contains(ablesung.getKunde())) {
                 return Response.status(Response.Status.NOT_FOUND).entity(ablesung).build();
             }
-            ablesungsModel.getAblesungsList().add(ablesung);
+            ablesungsModel.add(ablesung);
             return Response.status(Response.Status.CREATED).entity(ablesung).build();
         }
 
@@ -97,18 +91,11 @@ public class AblesungsResource {
         if (ablesung == null){
             return Response.status(Response.Status.BAD_REQUEST).entity("Bitte Ablesungsdaten eingeben").build();
         }
-        for (Ablesung ablesungEntry : ablesungsModel.getAblesungsList()) {
-                if(ablesungEntry.getId().equals(ablesung.getId())){
-                    ablesungEntry.setZaehlernummer(ablesung.getZaehlernummer());
-                    ablesungEntry.setDatum(ablesung.getDatum());
-                    ablesungEntry.setKunde(ablesung.getKunde());
-                    ablesungEntry.setKommentar(ablesung.getKommentar());
-                    ablesungEntry.setNeuEingebaut(ablesung.isNeuEingebaut());
-                    ablesungEntry.setZaehlerstand(ablesung.getZaehlerstand());
-                    return Response.status(Response.Status.OK).entity("Update der Ablesung wurde durchgeführt").build();
-                }
-        }
 
+        Ablesung a = ablesungsModel.update(ablesung);
+        if(a!=null){
+            return Response.status(Response.Status.OK).entity("Update der Ablesung wurde durchgeführt").build();
+        }
         return Response.status(Response.Status.NOT_FOUND).entity("Keine Ablesung gefunden").build();
     }
 
@@ -134,7 +121,7 @@ public class AblesungsResource {
                 }
 
 
-                Stream<Ablesung> stream = ablesungsModel.getAblesungsList().stream();
+                Stream<Ablesung> stream = ablesungsModel.getAll().stream();
 
                 if(uuid != null){
                     final UUID finalUuid = uuid;

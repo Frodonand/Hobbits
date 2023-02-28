@@ -110,4 +110,35 @@ public class MariaDBPersistanceAblesung{
     }
     return list;
   }
+
+  public Ablesung get(UUID uuid) {
+
+
+    String statementAblesungString = "select * from ablesung a inner join kunde k on k.uuid=a.kunde where a.uuid=" + uuid.toString();
+
+  Ablesung ablesungResult = null;
+
+    try ( Connection connection = DriverManager.getConnection("jdbc:mariadb://"+DB_PATH+"?user="+DB_USER+"&password="+DB_PASSWORD);
+        Statement statement = connection.createStatement();) {
+        ResultSet ablesung = statement.executeQuery(statementAblesungString);
+        while(ablesung.next()){
+          UUID uuidAblesung = UUID.fromString(ablesung.getString("a.uuid"));
+          String zaehlernummer = ablesung.getString("zaehlernummer");
+          Date datum = ablesung.getDate("datum");
+          String kommentar = ablesung.getString("kommentar");
+          boolean neuEingebaut = ablesung.getBoolean("neu_eingebaut");
+          float zaehlerstand = ablesung.getFloat("zaehlerstand");
+          
+          UUID uuidKunde = UUID.fromString(ablesung.getString("kunde"));
+          String name = ablesung.getString("nachname");
+          String vorname = ablesung.getString("vorname");
+          Kunde kunde = new Kunde(uuidKunde,name,vorname);
+
+          ablesungResult = new Ablesung(uuidAblesung, zaehlernummer, datum.toLocalDate(), kunde, kommentar, neuEingebaut, zaehlerstand);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return ablesungResult;
+  }
 }
