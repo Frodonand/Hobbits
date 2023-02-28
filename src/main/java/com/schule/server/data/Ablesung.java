@@ -70,4 +70,20 @@ public class Ablesung {
         return result;
     }
 
+    public String toSQLValue() {
+        String sqlString = "(";
+        
+        if(id==null||kunde==null||kunde.getId()==null)return "";
+
+        sqlString+= "\"" + id.toString().replace("-", "")+"\",";
+        sqlString+= "\"" + zaehlernummer+"\",";
+        sqlString+= "\"" + datum+"\",";
+        sqlString+= "\"" + kunde.getId().toString().replace("-", "")+"\",";
+        sqlString+= "\"" + kommentar+"\",";
+        sqlString+= "\"" + (neuEingebaut?1:0)+"\",";
+        sqlString+= zaehlerstand+")";
+
+        return sqlString;
+    }
+
 }
