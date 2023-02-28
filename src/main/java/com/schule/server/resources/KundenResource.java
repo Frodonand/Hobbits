@@ -3,7 +3,6 @@ package com.schule.server.resources;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -33,22 +32,17 @@ public class KundenResource {
     public Response deleteCustomer(@PathParam("id") String id) {
         try{
             UUID uuid = UUID.fromString(id);
-            Optional<Kunde> kundeOptional = kundenModel.getData().stream()
-                .filter(k -> k.getId()
-                .equals(uuid))
-                .findFirst();
+            Kunde toDelete = kundenModel.get(uuid);
 
-            if(kundeOptional.isPresent()){
-                Kunde kunde = kundeOptional.get();
+            if(toDelete!=null){
                 List<Ablesung> kundenAblesung = ablesungsModel.getAll().stream()
                     .filter(k -> k.getKunde()!=null && k.getKunde().getId().equals(uuid))
-                    .peek(e-> e.setKunde(null))
                     .collect(Collectors.toList());
         
-                kundenModel.getData().removeIf(k -> k.getId().equals(uuid));
+                kundenModel.delete(uuid);
 
                 Map<UUID,List<Ablesung>> result = new HashMap<>();
-                result.put(kunde.getId(), kundenAblesung);
+                result.put(toDelete.getId(), kundenAblesung);
 
                 return Response.status(Response.Status.OK).entity(result).build();
             }
@@ -66,9 +60,9 @@ public class KundenResource {
     public Response getCustomerById(@PathParam("id") String id) {
         try{
             UUID uuid = UUID.fromString(id);
-            Optional<Kunde> kunde = kundenModel.getData().stream().filter(e->e.getId().equals(uuid)).findFirst();
-            if(kunde.isPresent()){
-            return Response.status(Response.Status.OK).entity(kunde.get()).build();
+            Kunde kunde = kundenModel.get(uuid);
+            if(kunde != null){
+                return Response.status(Response.Status.OK).entity(kunde).build();
             }
         }catch(IllegalArgumentException e) {}
         return Response.status(Response.Status.NOT_FOUND).entity("Kunde nicht gefunden").build();
@@ -77,7 +71,7 @@ public class KundenResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getKundendaten(){
-        return Response.status(Response.Status.OK).entity(kundenModel.getData()).build();
+        return Response.status(Response.Status.OK).entity(kundenModel.getAll()).build();
     }
 
     @PUT
@@ -87,12 +81,9 @@ public class KundenResource {
         if (k == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Kunde angeben").build();
         }
-        for (Kunde kd:kundenModel.getData()) {
-            if(k.getId().equals(kd.getId())){
-                kd.setName(k.getName());
-                kd.setVorname(k.getVorname());
-                return Response.status(Response.Status.OK).entity("Update durchgeführt").build();
-            }
+        Kunde updated = kundenModel.update(k);
+        if(updated!=null){
+            return Response.status(Response.Status.OK).entity("Update durchgeführt").build();
         }
         return Response.status(Response.Status.NOT_FOUND).entity("Kunde nicht gefunden").build();
     }
@@ -103,7 +94,7 @@ public class KundenResource {
     public Response addCustomer(Kunde kunde){
         if(kunde!=null){
             kunde.setId(UUID.randomUUID());
-            kundenModel.getData().add(kunde);
+            kundenModel.add(kunde);
             return Response.status(Response.Status.CREATED).entity(kunde).build();
         }
         return Response.status(Response.Status.BAD_REQUEST).entity("Kein Kunden erhalten").build();

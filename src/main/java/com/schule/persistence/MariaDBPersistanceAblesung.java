@@ -96,12 +96,15 @@ public class MariaDBPersistanceAblesung{
           UUID uuid = UUID.fromString(ablesung.getString("uuid"));
           String zaehlernummer = ablesung.getString("zaehlernummer");
           Date datum = ablesung.getDate("datum");
-          UUID uuidKunde = UUID.fromString(ablesung.getString("kunde"));
+          Kunde kunde = null;
+          try {
+            UUID uuidKunde = UUID.fromString(ablesung.getString("kunde"));
+            kunde = kundenliste.stream().filter(e->e.getId().equals(uuidKunde)).findFirst().orElse(null);
+          } catch (Exception e) {}
           String kommentar = ablesung.getString("kommentar");
           boolean neuEingebaut = ablesung.getBoolean("neu_eingebaut");
           float zaehlerstand = ablesung.getFloat("zaehlerstand");
           
-          Kunde kunde =kundenliste.stream().filter(e->e.getId().equals(uuidKunde)).findFirst().orElse(null);
 
           list.add(new Ablesung(uuid, zaehlernummer, datum.toLocalDate(), kunde, kommentar, neuEingebaut, zaehlerstand));
         }
@@ -113,10 +116,9 @@ public class MariaDBPersistanceAblesung{
 
   public Ablesung get(UUID uuid) {
 
-
     String statementAblesungString = "select * from ablesung a inner join kunde k on k.uuid=a.kunde where a.uuid=" + uuid.toString();
 
-  Ablesung ablesungResult = null;
+    Ablesung ablesungResult = null;
 
     try ( Connection connection = DriverManager.getConnection("jdbc:mariadb://"+DB_PATH+"?user="+DB_USER+"&password="+DB_PASSWORD);
         Statement statement = connection.createStatement();) {

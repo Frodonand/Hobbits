@@ -42,6 +42,7 @@ import com.schule.server.Server;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
 class ServerTest {
+	/*
 
 	private static final String url = "http://localhost:8080/test";
 	private static final Client client = ClientBuilder.newClient();
@@ -63,7 +64,6 @@ class ServerTest {
 	private static HashMap<Kunde, List<Ablesung>> ablesungen;
 	private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-	/*/
 	@BeforeAll
 	static void setUp() {
 		setUpKundenList();

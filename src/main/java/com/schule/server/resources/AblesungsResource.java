@@ -58,8 +58,6 @@ public class AblesungsResource {
         return Response.status(Response.Status.NOT_FOUND).entity("Ablesung nicht gefunden").build();
     }
 
-
-
     @GET
     @Path("/vorZweiJahrenHeute")
     public Response getAblesungenTwoYears() {
@@ -74,7 +72,7 @@ public class AblesungsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addAblesung(Ablesung ablesung) {
         if (ablesung != null) {
-            if (!kundenModel.getData().contains(ablesung.getKunde())) {
+            if (kundenModel.get(ablesung.getKunde().getId())==null) {
                 return Response.status(Response.Status.NOT_FOUND).entity(ablesung).build();
             }
             ablesungsModel.add(ablesung);
@@ -112,7 +110,7 @@ public class AblesungsResource {
                 LocalDate beginnDate = LocalDate.MIN;
                 LocalDate endeDate = LocalDate.MIN;
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-d");
-
+                
                 if(beginn != null){
                     beginnDate = LocalDate.parse(beginn, formatter);
                 }
@@ -120,6 +118,8 @@ public class AblesungsResource {
                     endeDate = LocalDate.parse(ende, formatter);
                 }
 
+                System.out.println(beginn);
+                System.out.println(ende);
 
                 Stream<Ablesung> stream = ablesungsModel.getAll().stream();
 
@@ -137,15 +137,14 @@ public class AblesungsResource {
                 }
     
                 List<Ablesung> flat = stream.collect(Collectors.toList());
-                if(!flat.isEmpty()){
-                    return Response.status(Response.Status.OK).entity(flat).build();
-                }
+                
+                return Response.status(Response.Status.OK).entity(flat).build();
+                
     
 
             } catch (Exception e) {
+                e.printStackTrace();
                 return Response.status(Response.Status.BAD_REQUEST).entity("Falsches Datums Format " + kunde).build();
             }
-            
-        return Response.status(Response.Status.NOT_FOUND).entity("Keine Ablesung gefunden").build();
     }
 }

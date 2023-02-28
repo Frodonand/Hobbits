@@ -199,7 +199,7 @@ public class ZaehlerEingabeFormular extends JFrame {
         new KundenFenster(this);
     }
     private void datenFensteranzeigen() {
-        Builder builder = target.path("ablesungen/vorZweiJahrenHeute")
+        Builder builder = target.path("ablesungen")
             .request().accept(MediaType.APPLICATION_JSON);
         new DatenFenster(builder);
     }
@@ -265,12 +265,11 @@ public class ZaehlerEingabeFormular extends JFrame {
         boolean exists = false;
         Response re = target.path("ablesungen")
                 .request().accept(MediaType.APPLICATION_JSON).get();
-        List<Ablesung> zaehlerdaten = re.readEntity(new GenericType<List<Ablesung>>() {
-        });
+        List<Ablesung> zaehlerdaten = re.readEntity(new GenericType<List<Ablesung>>() {});
         for (Ablesung curr : zaehlerdaten) {
             if (newAblesung.getDatum().equals(curr.getDatum()) &&
                 newAblesung.getZaehlernummer().equals(curr.getZaehlernummer()) &&
-                newAblesung.getZaehlerstand().equals(curr.getZaehlerstand())&&
+                newAblesung.getZaehlerstand().doubleValue()==curr.getZaehlerstand().doubleValue()&&
                 newAblesung.getKunde().equals(curr.getKunde())&&
                 newAblesung.isNeuEingebaut()== curr.isNeuEingebaut()&&
                 newAblesung.getKommentar().equals(curr.getKommentar())) {
@@ -281,11 +280,12 @@ public class ZaehlerEingabeFormular extends JFrame {
             showErrorWindow("Dieser Eintrag exsistiert bereits!");
         } else if (!s.equals("")) {
             showErrorWindow(s);
-        }
+        }else{
         Response response = target.path("ablesungen").request(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(newAblesung, MediaType.APPLICATION_JSON));
         if(response.getStatus() != 201){
             showErrorWindow("Bitte geben Sie einen Kunden an.");
+        }
         }
     }
 

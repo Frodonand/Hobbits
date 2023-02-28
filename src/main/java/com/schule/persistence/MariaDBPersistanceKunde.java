@@ -87,4 +87,27 @@ public class MariaDBPersistanceKunde{
     }
     return list;
   }
+
+  public Kunde get(UUID uuid) {
+
+
+    String statementAblesungString = "select * from kunde where uuid=\"" + uuid.toString()+"\"";
+
+    Kunde kundeResult = null;
+
+    try ( Connection connection = DriverManager.getConnection("jdbc:mariadb://"+DB_PATH+"?user="+DB_USER+"&password="+DB_PASSWORD);
+          Statement statement = connection.createStatement();) {
+          ResultSet kunde = statement.executeQuery(statementAblesungString);
+
+          kunde.next();
+
+          UUID uuidKunde = UUID.fromString(kunde.getString("uuid"));
+          String name = kunde.getString("nachname");
+          String vorname = kunde.getString("vorname");
+          kundeResult = new Kunde(uuidKunde,name,vorname);
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return kundeResult;
+  }
 }
