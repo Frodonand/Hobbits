@@ -26,25 +26,15 @@ CREATE TABLE `ablesung` (
   `uuid` uuid NOT NULL,
   `zaehlernummer` varchar(50) NOT NULL,
   `datum` date NOT NULL,
-  `kunde` uuid NOT NULL,
+  `kunde` uuid DEFAULT NULL,
   `kommentar` text NOT NULL,
   `neu_eingebaut` tinyint(1) NOT NULL,
   `zaehlerstand` float NOT NULL,
   PRIMARY KEY (`uuid`),
   KEY `ablesung_FK` (`kunde`),
-  CONSTRAINT `ablesung_FK` FOREIGN KEY (`kunde`) REFERENCES `kunde` (`uuid`)
+  CONSTRAINT `ablesung_FK` FOREIGN KEY (`kunde`) REFERENCES `kunde` (`uuid`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `ablesung`
---
-
-LOCK TABLES `ablesung` WRITE;
-/*!40000 ALTER TABLE `ablesung` DISABLE KEYS */;
-INSERT INTO `ablesung` VALUES ('c46f5966-4c66-48ea-a6f5-01b84690b20b','1','2022-01-01','2d56cfdb-8b07-4dc6-9eb5-3f106f7b13f1','test lol',0,0);
-/*!40000 ALTER TABLE `ablesung` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `kunde`
@@ -62,16 +52,6 @@ CREATE TABLE `kunde` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `kunde`
---
-
-LOCK TABLES `kunde` WRITE;
-/*!40000 ALTER TABLE `kunde` DISABLE KEYS */;
-INSERT INTO `kunde` VALUES ('2d56cfdb-8b07-4dc6-9eb5-3f106f7b13f1','a','Frodo lol');
-/*!40000 ALTER TABLE `kunde` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Dumping routines for database 'hobbits'
 --
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -84,4 +64,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-02-28  8:59:15
+-- Dump completed on 2023-03-01  9:10:15
