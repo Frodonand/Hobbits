@@ -23,8 +23,8 @@ import java.util.stream.Stream;
 
 @Path("ablesungen")
 public class AblesungsResource {
-    private static AblesungsModel ablesungsModel = AblesungsModel.getInstance();
-    private static KundenModel kundenModel = KundenModel.getInstance();
+    private static final AblesungsModel ablesungsModel = AblesungsModel.getInstance();
+    private static final KundenModel kundenModel = KundenModel.getInstance();
 
     @DELETE
     @Path("/{id}")
@@ -104,7 +104,7 @@ public class AblesungsResource {
             UUID uuid = null;
             try {
                 uuid = UUID.fromString(kunde);
-            } catch (Exception e) {}
+            } catch (Exception ignored) {}
 
             try{
                 LocalDate beginnDate = LocalDate.MIN;

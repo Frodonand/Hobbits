@@ -445,7 +445,7 @@ class ServerTest {
 		List<Ablesung> result = new ArrayList<>();
 		for (List<Ablesung> toFilter : ablesungen.values()) {
 			for (Ablesung a : toFilter) {
-				if (a.getDatum().isBefore(ende)) {
+				if (a.getDatum().isBefore(ende) || a.getDatum().equals(ende)) {
 					result.add(a);
 				}
 			}
