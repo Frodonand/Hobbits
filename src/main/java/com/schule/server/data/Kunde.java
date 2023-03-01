@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @JsonTypeName(value = "kunde")
 public class Kunde {
     @JsonProperty
@@ -44,5 +46,15 @@ public class Kunde {
     @Override
     public String toString() {
         return id.toString();
+    }
+
+    public String toSQLValue() {
+        String sqlStatemant = "(";
+
+        sqlStatemant+= "\"" + id.toString().replace("-", "")+"\",";
+        sqlStatemant+= "\"" + vorname + "\",";
+        sqlStatemant+= "\"" + name + "\")";
+
+        return sqlStatemant;
     }
 }

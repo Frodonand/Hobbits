@@ -23,20 +23,16 @@ import java.util.stream.Stream;
 
 @Path("ablesungen")
 public class AblesungsResource {
-    private static AblesungsModel ablesungsModel = AblesungsModel.getInstance();
-    private static KundenModel kundenModel = KundenModel.getInstance();
+    private static final AblesungsModel ablesungsModel = AblesungsModel.getInstance();
+    private static final KundenModel kundenModel = KundenModel.getInstance();
 
     @DELETE
     @Path("/{id}")
     public Response deleteAblesung(@PathParam("id") String id) {
         try{
             UUID uuid = UUID.fromString(id);
-            Optional<Ablesung> flat = ablesungsModel.getAblesungsList().stream()
-                    .filter(e->e.getId().equals(uuid))
-                    .findFirst();
-            if(flat.isPresent()){
-                Ablesung a = flat.get();
-                ablesungsModel.getAblesungsList().removeIf(e -> e.getId().equals(a.getId()));
+            Ablesung a = ablesungsModel.get(uuid);
+            if(ablesungsModel.delete(uuid)){
                 return Response.status(Response.Status.OK).entity(a).build();
             }
         }catch (IllegalArgumentException e){
@@ -51,11 +47,9 @@ public class AblesungsResource {
     public Response getAblesungById(@PathParam("id") String id) {
         try{
             UUID uuid = UUID.fromString(id);
-            Optional<Ablesung> flat = ablesungsModel.getAblesungsList().stream()
-                    .filter(e->e.getId().equals(uuid))
-                    .findFirst();
-            if(flat.isPresent()){
-                Ablesung a = flat.get();
+
+            Ablesung a = ablesungsModel.get(uuid);
+            if(a!=null){
                 return Response.status(Response.Status.OK).entity(a).build();
             }
         }catch (IllegalArgumentException e){
@@ -64,12 +58,10 @@ public class AblesungsResource {
         return Response.status(Response.Status.NOT_FOUND).entity("Ablesung nicht gefunden").build();
     }
 
-
-
     @GET
     @Path("/vorZweiJahrenHeute")
     public Response getAblesungenTwoYears() {
-        List<Ablesung> flat = ablesungsModel.getAblesungsList().stream()
+        List<Ablesung> flat = ablesungsModel.getAll().stream()
                 .filter(e -> e.getDatum().getYear() >= LocalDate.now().getYear() - 2)
                 .collect(Collectors.toList());
         return Response.status(Response.Status.OK).entity(flat).build();
@@ -80,10 +72,10 @@ public class AblesungsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addAblesung(Ablesung ablesung) {
         if (ablesung != null) {
-            if (!kundenModel.getData().contains(ablesung.getKunde())) {
+            if (kundenModel.get(ablesung.getKunde().getId())==null) {
                 return Response.status(Response.Status.NOT_FOUND).entity(ablesung).build();
             }
-            ablesungsModel.getAblesungsList().add(ablesung);
+            ablesungsModel.add(ablesung);
             return Response.status(Response.Status.CREATED).entity(ablesung).build();
         }
 
@@ -97,18 +89,11 @@ public class AblesungsResource {
         if (ablesung == null){
             return Response.status(Response.Status.BAD_REQUEST).entity("Bitte Ablesungsdaten eingeben").build();
         }
-        for (Ablesung ablesungEntry : ablesungsModel.getAblesungsList()) {
-                if(ablesungEntry.getId().equals(ablesung.getId())){
-                    ablesungEntry.setZaehlernummer(ablesung.getZaehlernummer());
-                    ablesungEntry.setDatum(ablesung.getDatum());
-                    ablesungEntry.setKunde(ablesung.getKunde());
-                    ablesungEntry.setKommentar(ablesung.getKommentar());
-                    ablesungEntry.setNeuEingebaut(ablesung.isNeuEingebaut());
-                    ablesungEntry.setZaehlerstand(ablesung.getZaehlerstand());
-                    return Response.status(Response.Status.OK).entity("Update der Ablesung wurde durchgeführt").build();
-                }
-        }
 
+        Ablesung a = ablesungsModel.update(ablesung);
+        if(a!=null){
+            return Response.status(Response.Status.OK).entity("Update der Ablesung wurde durchgeführt").build();
+        }
         return Response.status(Response.Status.NOT_FOUND).entity("Keine Ablesung gefunden").build();
     }
 
@@ -119,13 +104,13 @@ public class AblesungsResource {
             UUID uuid = null;
             try {
                 uuid = UUID.fromString(kunde);
-            } catch (Exception e) {}
+            } catch (Exception ignored) {}
 
             try{
                 LocalDate beginnDate = LocalDate.MIN;
                 LocalDate endeDate = LocalDate.MIN;
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-d");
-
+                
                 if(beginn != null){
                     beginnDate = LocalDate.parse(beginn, formatter);
                 }
@@ -133,8 +118,10 @@ public class AblesungsResource {
                     endeDate = LocalDate.parse(ende, formatter);
                 }
 
+                System.out.println(beginn);
+                System.out.println(ende);
 
-                Stream<Ablesung> stream = ablesungsModel.getAblesungsList().stream();
+                Stream<Ablesung> stream = ablesungsModel.getAll().stream();
 
                 if(uuid != null){
                     final UUID finalUuid = uuid;
@@ -150,15 +137,14 @@ public class AblesungsResource {
                 }
     
                 List<Ablesung> flat = stream.collect(Collectors.toList());
-                if(!flat.isEmpty()){
-                    return Response.status(Response.Status.OK).entity(flat).build();
-                }
+                
+                return Response.status(Response.Status.OK).entity(flat).build();
+                
     
 
             } catch (Exception e) {
+                e.printStackTrace();
                 return Response.status(Response.Status.BAD_REQUEST).entity("Falsches Datums Format " + kunde).build();
             }
-            
-        return Response.status(Response.Status.NOT_FOUND).entity("Keine Ablesung gefunden").build();
     }
 }

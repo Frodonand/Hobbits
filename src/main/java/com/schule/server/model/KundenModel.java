@@ -1,16 +1,17 @@
 package com.schule.server.model;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+import com.schule.persistence.MariaDBPersistanceKunde;
 import com.schule.server.data.Kunde;
 
 public class KundenModel {
     
-    private List<Kunde> data = new ArrayList<>();
-    
     private static KundenModel instance;
     
+    private MariaDBPersistanceKunde persistance = new MariaDBPersistanceKunde();
+
     private KundenModel(){
     }
     
@@ -20,26 +21,24 @@ public class KundenModel {
         return instance;
     }
 
-
-    public List<Kunde> getData() {
-        return data;
+    public List<Kunde> getAll() {
+        return persistance.getAll();
     }
 
-    public void setData(List<Kunde> data) {
-        this.data = data;
+    public void add(Kunde ablesung){
+        persistance.create(ablesung);
     }
 
-    public void updateEntry(int index, Kunde newKunde) {
-        data.remove(index);
-        data.add(index, newKunde);
+    public Kunde update(Kunde newAblesung) {
+        return persistance.update(newAblesung);
     }
     
-    public void removeEntry(int index) {
-        data.remove(index);
+    public boolean delete(UUID uuid) {
+        return persistance.delete(uuid);
     }
 
-    public Kunde getEntry(int index) {
-        return data.get(index);
+    public Kunde get(UUID uuid) {
+        return persistance.get(uuid);
     }
 }
 

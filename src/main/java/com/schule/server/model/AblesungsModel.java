@@ -1,16 +1,16 @@
 package com.schule.server.model;
-
-import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+import com.schule.persistence.MariaDBPersistanceAblesung;
 import com.schule.server.data.Ablesung;
 
 public class AblesungsModel {
-
-    private List<Ablesung> ablesungsList = new ArrayList<Ablesung>();
     private static AblesungsModel instance;
+    private MariaDBPersistanceAblesung persistance = new MariaDBPersistanceAblesung();
     
     private AblesungsModel(){
+
     }
     
     public static AblesungsModel getInstance() {
@@ -19,29 +19,24 @@ public class AblesungsModel {
         return instance;
     }
 
-    public List<Ablesung> getAblesungsList() {
-        return ablesungsList;
-    }
-
-    public void setAblesungsList(List<Ablesung> ablesungsList) {
-        this.ablesungsList = ablesungsList;
+    public List<Ablesung> getAll() {
+        return persistance.getAll();
     }
 
     public void add(Ablesung ablesung){
-        ablesungsList.add(ablesung);
+        persistance.create(ablesung);
     }
 
-   /* public void updateEntry(int index, Ablesung newAblesung) {
-        data.remove(index);
-        data.add(index, newAblesung);
+    public Ablesung update(Ablesung newAblesung) {
+        return persistance.update(newAblesung);
     }
     
-    public void removeEntry(int index) {
-        data.remove(index);
+    public boolean delete(UUID uuid) {
+        return persistance.delete(uuid);
     }
 
-    public Ablesung getEntry(int index) {
-        return data.get(index);
-    }*/
+    public Ablesung get(UUID uuid) {
+        return persistance.get(uuid);
+    }
 }
 
